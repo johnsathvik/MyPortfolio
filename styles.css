@@ -1,0 +1,221 @@
+/* ========== BASE & VARIABLES ========== */
+:root {
+    --bg-light: #ffffff;
+    --bg-dark: #121212;
+    --fg-light: #222222;
+    --fg-dark: #e0e0e0;
+    --primary: #ff6347;
+    --transition: 0.3s ease;
+  }
+  body[data-theme="light"] {
+    background: var(--bg-light);
+    color: var(--fg-light);
+  }
+  body[data-theme="dark"] {
+    background: var(--bg-dark);
+    color: var(--fg-dark);
+  }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    scroll-behavior: smooth;
+  }
+  .container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 0;
+  }
+  .section {
+    padding: 4rem 0;
+  }
+  .section.alt {
+    background: rgba(255, 99, 71, 0.05);
+  }
+  
+  /* ========== NAVBAR ========== */
+  #navbar {
+    position: sticky;
+    top: 0;
+    background: var(--primary);
+    z-index: 100;
+    transition: background var(--transition);
+  }
+  #navbar .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #navbar .logo {
+    color: #fff;
+    font-size: 1.5rem;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+  }
+  .nav-links a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.75rem;
+    transition: background var(--transition);
+  }
+  .nav-links a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  #theme-toggle {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  /* ========== HERO ========== */
+  #hero {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 60vh;
+    background: url('hero-bg.jpg') center/cover no-repeat;
+    position: relative;
+  }
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    animation: fadeInDown 1s ease forwards;
+    opacity: 0;
+  }
+  .hero-content .contact-line {
+    font-size: 1rem;
+    animation: fadeInUp 1s ease 0.5s forwards;
+    opacity: 0;
+  }
+  @keyframes fadeInDown {
+    from { transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInUp {
+    from { transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* ========== ABOUT/RESEARCH/EDU ========== */
+  .section h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    position: relative;
+  }
+  .section h2::after {
+    content: '';
+    width: 50px;
+    height: 4px;
+    background: var(--primary);
+    display: block;
+    margin: 0.5rem auto 2rem;
+  }
+  .research-list,
+  .awards-list {
+    list-style: none;
+    padding-left: 1rem;
+  }
+  .research-list li::before,
+  .awards-list li::before {
+    content: '•';
+    color: var(--primary);
+    margin-right: 0.5rem;
+  }
+  
+  /* ========== SKILLS ========== */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+  }
+  .skill-bar {
+    display: flex;
+    align-items: center;
+  }
+  .skill-bar i {
+    font-size: 2rem;
+    width: 3rem;
+  }
+  .bar-wrap {
+    flex: 1;
+  }
+  .bar {
+    width: 100%;
+    height: 0.5rem;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 0.25rem;
+  }
+  .bar .fill {
+    height: 100%;
+    width: 0;
+    background: var(--primary);
+    animation: fillBar 1.5s ease forwards;
+  }
+  .skill-bar[data-level] .fill {
+    animation-delay: 0.5s;
+  }
+  @keyframes fillBar {
+    to { width: var(--level); }
+  }
+  
+  /* ========== EXPERIENCE ========== */
+  .exp-item {
+    margin-bottom: 2rem;
+  }
+  .exp-item h3 {
+    font-size: 1.2rem;
+  }
+  .exp-item .date {
+    display: block;
+    font-size: 0.9rem;
+    color: gray;
+    margin-bottom: 0.5rem;
+  }
+  .exp-item ul {
+    list-style: disc inside;
+  }
+  
+  /* ========== PROJECTS TABLE ========== */
+  .projects-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  .projects-table th,
+  .projects-table td {
+    border: 1px solid #ddd;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  .projects-table th {
+    background: var(--primary);
+    color: #fff;
+  }
+  
+  /* ========== AWARDS ========== */
+  blockquote {
+    margin: 2rem 0;
+    font-style: italic;
+    text-align: center;
+    color: var(--primary);
+  }
+  
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 768px) {
+    .hero-content h1 { font-size: 2.5rem; }
+    .nav-links { display: none; }
+    #navbar.active .nav-links { display: flex; flex-direction: column; }
+  }
+  
