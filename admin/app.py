@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 # CRITICAL FIX: Load secret key from environment variable for security.
 # IMPORTANT: Before running, set the environment variable: export FLASK_SECRET_KEY='your_new_long_secret_key'
-app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'a_default_key_for_dev_only') 
+app.secret_key = os.environ.get('*John3211#*John3211#*John3211#*John3211#', '*John3211#*John3211#*John3211#*John3211#') 
 
 # Firebase wrapper class to replace python-firebase
 class FirebaseApplication:
