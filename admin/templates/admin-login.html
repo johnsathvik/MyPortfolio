@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login | Portfolio Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background particles */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+      animation: particleFloat 20s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes particleFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(30px, -30px) scale(1.1); }
+      66% { transform: translate(-20px, 20px) scale(0.9); }
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      animation: fadeInUp 0.8s ease-out, float 6s ease-in-out infinite;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .card {
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+        0 0 40px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      background: linear-gradient(145deg, #2a2a2a 0%, #1f1f1f 100%);
+      backdrop-filter: blur(10px);
+      animation: cardGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes cardGlow {
+      0%, 100% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 40px rgba(0, 0, 0, 0.3); }
+      50% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 0 50px rgba(255, 255, 255, 0.05); }
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      padding: 40px 30px;
+      text-align: center;
+      color: #e0e0e0;
+      position: relative;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.02) 50%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .icon-wrapper {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      z-index: 1;
+      animation: iconPulse 2s ease-in-out infinite;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+      }
+      50% { 
+        transform: scale(1.05); 
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .icon-wrapper i {
+      font-size: 36px;
+      color: #e0e0e0;
+      animation: iconBounce 2s ease-in-out infinite;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .card-header h3 {
+      font-size: 28px;
+      font-weight: 600;
+      margin: 0;
+      letter-spacing: 1px;
+      position: relative;
+      z-index: 1;
+      color: #ffffff;
+      animation: textSlideIn 1s ease-out 0.3s both;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    @keyframes textSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .card-header small {
+      font-size: 14px;
+      opacity: 0.8;
+      display: block;
+      margin-top: 8px;
+      font-weight: 300;
+      position: relative;
+      z-index: 1;
+      color: #b0b0b0;
+      animation: textSlideIn 1s ease-out 0.5s both;
+    }
+
+    .card-body {
+      padding: 40px 35px;
+      background: #252525;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #d0d0d0;
+      margin-bottom: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: labelFadeIn 0.8s ease-out both;
+    }
+
+    .form-label:nth-of-type(1) { animation-delay: 0.6s; }
+    .form-label:nth-of-type(2) { animation-delay: 0.8s; }
+
+    @keyframes labelFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .input-group {
+      position: relative;
+      animation: inputSlideIn 0.8s ease-out both;
+    }
+
+    .input-group:nth-of-type(1) { animation-delay: 0.7s; }
+    .input-group:nth-of-type(2) { animation-delay: 0.9s; }
+
+    @keyframes inputSlideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #FFFFFF;
+      font-size: 18px;
+      z-index: 10;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-control {
+      padding: 14px 14px 14px 45px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background-color: #1a1a1a;
+      color: #FFFFFF !important;
+      caret-color: #FFFFFF;
+      -webkit-text-fill-color: #FFFFFF;
+    }
+
+    .form-control:-webkit-autofill,
+    .form-control:-webkit-autofill:hover,
+    .form-control:-webkit-autofill:focus,
+    .form-control:-webkit-autofill:active {
+      -webkit-text-fill-color: #FFFFFF !important;
+      -webkit-box-shadow: 0 0 0 30px #1a1a1a inset !important;
+      caret-color: #FFFFFF !important;
+      color: #FFFFFF !important;
+    }
+
+    .form-control::placeholder {
+      color: #666666;
+      opacity: 1;
+    }
+
+    .form-control:focus {
+      border-color: #888888;
+      background-color: #222222;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 0 20px rgba(255, 255, 255, 0.05);
+      outline: none;
+      transform: translateY(-2px);
+      color: #FFFFFF !important;
+      -webkit-text-fill-color: #FFFFFF !important;
+      caret-color: #FFFFFF !important;
+    }
+
+    .form-control:focus:-webkit-autofill {
+      -webkit-text-fill-color: #FFFFFF !important;
+      -webkit-box-shadow: 0 0 0 30px #222222 inset !important;
+      caret-color: #FFFFFF !important;
+    }
+
+    .input-group:focus-within i {
+      color: #ffffff;
+      transform: translateY(-50%) scale(1.2);
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      animation: buttonFadeIn 1s ease-out 1s both;
+    }
+
+    @keyframes buttonFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .login-button:hover::before {
+      left: 100%;
+    }
+
+    .login-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 255, 255, 0.1);
+      background: linear-gradient(135deg, #4a4a4a 0%, #3a3a3a 100%);
+      border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .login-button:active {
+      transform: translateY(-1px);
+    }
+
+    .login-button i {
+      animation: iconSlide 0.5s ease-in-out infinite;
+    }
+
+    @keyframes iconSlide {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(3px); }
+    }
+
+    .alert {
+      border-radius: 10px;
+      border: 1px solid rgba(255, 0, 0, 0.2);
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      box-shadow: 0 2px 10px rgba(255, 0, 0, 0.1);
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .alert-danger {
+      background-color: rgba(255, 0, 0, 0.1);
+      color: #ff6b6b;
+      border-left: 4px solid #ff6b6b;
+    }
+
+    .footer-text {
+      text-align: center;
+      margin-top: 30px;
+      color: #888888;
+      font-size: 12px;
+      animation: fadeIn 1s ease-out 1.2s both;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .footer-text i {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .card-body {
+        padding: 30px 25px;
+      }
+
+      .card-header {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="card">
+      <div class="card-header">
+        <div class="icon-wrapper">
+          <i class="bi bi-shield-lock-fill"></i>
+        </div>
+        <h3>Admin Portal</h3>
+        <small>Secure Access Only</small>
+      </div>
+
+      <div class="card-body">
+        <form method="POST" action="/admin-login">
+          {% with messages = get_flashed_messages() %}
+            {% if messages %}
+              <div class="alert alert-danger text-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ messages[0] }}
+              </div>
+            {% endif %}
+          {% endwith %}
+
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <div class="input-group">
+              <i class="bi bi-person-fill"></i>
+              <input 
+                type="text" 
+                name="username" 
+                id="username"
+                class="form-control" 
+                placeholder="Enter your username"
+                required
+                autocomplete="username"
+              >
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-group">
+              <i class="bi bi-lock-fill"></i>
+              <input 
+                type="password" 
+                name="password" 
+                id="password"
+                class="form-control" 
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+              >
+            </div>
+          </div>
+
+          <button type="submit" class="btn login-button">
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            Sign In
+          </button>
+        </form>
+
+        <div class="footer-text">
+          <i class="bi bi-info-circle me-1"></i>
+          Authorized personnel only
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
