@@ -1,0 +1,12 @@
+[Unit]
+Description=Flask Portfolio App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/MyPortfolio/PortfolioMain
+ExecStart=/home/ubuntu/MyPortfolio/venv/bin/python3 app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
