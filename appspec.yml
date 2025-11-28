@@ -1,10 +1,10 @@
 version: 0.0
 os: linux
 files:
-  - source: /
-    destination: /home/ubuntu/MyPortfolio
+  - source: / # or whatever your source directory is
+    destination: /home/ubuntu/MyPortfolio/PortfolioMain/
+    # *** ADD THIS LINE ***
+    overwrite: true 
+    # *********************
 hooks:
-  AfterInstall:
-    - location: scripts/deploy.sh
-      timeout: 300
-      runas: ubuntu
+  # ... other hooks here ...

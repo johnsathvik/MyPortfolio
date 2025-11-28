@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  portfolio_main:
+    build: ./PortfolioMain  # Builds from the Dockerfile in this folder
+    container_name: portfolio_main
+    ports:
+      - "8000:5000"         # Maps Host 8000 to Container 5000
+    restart: always
+
+  admin_app:
+    build: ./admin          # Builds from the Dockerfile in this folder
+    container_name: admin_app
+    ports:
+      - "8001:5000"         # Maps Host 8001 to Container 5000
+    restart: always
