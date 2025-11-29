@@ -1,16 +1,20 @@
 version: 0.0
 os: linux
+
 files:
   - source: /
-    destination: /home/ubuntu/MyPortfolio/ # <--- CHANGE THIS
-    overwrite: true # <--- CRITICAL: Add this to allow updating existing files
+    # CRITICAL FIX: Use the permanent project directory
+    destination: /home/ubuntu/MyPortfolio/ 
+    overwrite: true # Ensures old files are correctly replaced
 
 hooks:
   ApplicationStop:
     - location: scripts/deploy.sh
-      timeout: 300
+      timeout: 60
       runas: root
+      
   ApplicationStart:
+    # This hook will now run the script in the context of the copied files
     - location: scripts/deploy.sh
       timeout: 300
       runas: root
