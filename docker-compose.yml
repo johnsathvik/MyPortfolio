@@ -1,15 +1,27 @@
 version: '3.8'
+
 services:
   portfolio_main:
-    build: ./PortfolioMain  # Builds from the Dockerfile in this folder
-    container_name: portfolio_main
+    # 1. Set the build context to the subdirectory containing its Dockerfile
+    build:
+      context: ./PortfolioMain 
+      dockerfile: Dockerfile
+    image: portfolio-main-image:latest
+    container_name: portfolio_main_container
     ports:
-      - "8000:5000"         # Maps Host 8000 to Container 5000
+      - "80:5001" # Map host port 80 to your Flask app's internal port 5001
     restart: always
 
   admin_app:
-    build: ./admin          # Builds from the Dockerfile in this folder
-    container_name: admin_app
+    # 2. CRITICAL FIX: Set the build context to the 'admin' subdirectory
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    image: admin-app-image:latest
+    container_name: admin_app_container
+    # NOTE: If your admin app is separate, it needs a different host port. 
+    # If it's integrated with the main app, you might not need this second service.
+    # Assuming it's separate:
     ports:
-      - "8001:5000"         # Maps Host 8001 to Container 5000
+      - "5002:5001" # Map host port 5002 to the admin app's internal port 5001
     restart: always

@@ -1,2 +1,7 @@
+# .gitattributes content in E:\MyPortfolio
 # Force shell scripts to always use LF (Linux) line endings
 *.sh text eol=lf
+
+# === ADD THIS LINE ===
+* text=auto eol=lf
+# =====================

@@ -1,17 +1,16 @@
 #!/bin/bash
-set -e
+set -e # Exit immediately if a command fails
 
-# Navigate to the project directory
+# 1. NAVIGATE TO PROJECT DIRECTORY (CRITICAL FIX)
+# This ensures we are in the folder where appspec.yml put the files
 cd /home/ubuntu/MyPortfolio
 
-# 1. Build new images (This happens while the old site is still running!)
-echo "Building new Docker images..."
-docker-compose build
+# 2. Stop existing containers
+echo "Stopping and removing existing Docker containers..."
+docker compose down -v || true 
 
-# 2. Stop old containers and start new ones
-echo "Deploying new containers..."
-docker-compose down
-docker-compose up -d
+# 3. Build and start new containers
+echo "Building and starting new Docker containers..."
+docker compose up -d --build
 
-# 3. Clean up space (optional)
-docker image prune -f
+echo "Deployment complete."

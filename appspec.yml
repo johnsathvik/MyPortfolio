@@ -1,10 +1,16 @@
 version: 0.0
 os: linux
 files:
-  - source: / # or whatever your source directory is
-    destination: /home/ubuntu/MyPortfolio/PortfolioMain/
-    # *** ADD THIS LINE ***
-    overwrite: true 
-    # *********************
+  - source: /
+    destination: /home/ubuntu/MyPortfolio/ # <--- CHANGE THIS
+    overwrite: true # <--- CRITICAL: Add this to allow updating existing files
+
 hooks:
-  # ... other hooks here ...
+  ApplicationStop:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/deploy.sh
+      timeout: 300
+      runas: root
