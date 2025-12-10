@@ -258,68 +258,146 @@
         background: #2c2c2c;
         border-left: 4px solid #ececec;
       }
+      @media (max-width: 991.98px) {
+        .sidebar {
+          height: auto;
+          border-right: none;
+          border-bottom: 2px solid #2c2c2c;
+          margin-bottom: 20px;
+          padding: 15px 10px;
+        }
+        .sidebar .nav {
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 4px;
+        }
+        .sidebar .nav-link {
+          width: calc(50% - 20px);
+          margin: 6px 10px;
+          justify-content: center;
+        }
+        .page-header .d-flex {
+          flex-direction: column;
+          gap: 15px;
+          text-align: center;
+        }
+        .actions-cell {
+          white-space: normal;
+        }
+        .actions-cell .btn {
+          width: 100%;
+          margin-bottom: 8px;
+        }
+      }
+  
+      @media (max-width: 575.98px) {
+        .sidebar .nav-link {
+          width: 100%;
+        }
+        main {
+          padding: 1.5rem 1rem !important;
+        }
+        .table-responsive {
+          border-radius: 12px;
+        }
+        .modal-dialog {
+          margin: 0.5rem;
+        }
+      }
+      @media (max-width: 768px) {
+        #sidebarMenu {
+            display: none !important;
+        }
+    
+        #sidebarMenu.show {
+            display: block !important;
+        }
+    }
+    .mobile-menu-bar {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+  }
+  
+  .mobile-menu-btn {
+      width: 100%;
+      background: #242424;
+      color: white;
+      padding: 12px;
+      border: 1px solid #444;
+      border-radius: 10px;
+      font-size: 15px;
+  }
+  
+  
     </style>
 </head>
 <body>
 
-<div class="container-fluid">
+  <div class="container-fluid">
     <div class="row">
-
-        <!-- Sidebar -->
-        <nav class="col-md-2 d-none d-md-block sidebar">
-            <div class="position-sticky">
-                <div class="text-center mb-4">
-                    <h4 class="highlight mb-0">
-                        <i class="bi bi-shield-check"></i> Admin Panel
-                    </h4>
-                    <small class="text-muted">Dashboard</small>
-                </div>
-                <hr>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin-home">
-                            <i class="bi bi-house-door"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="/admin-about">
-                            <i class="bi bi-person"></i> About
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin-experience">
-                            <i class="bi bi-briefcase"></i> Experience
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin-education">
-                            <i class="bi bi-mortarboard"></i> Education
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin-certification">
-                            <i class="bi bi-award"></i> Certification
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin-project">
-                            <i class="bi bi-folder"></i> Project
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin-contact">
-                            <i class="bi bi-envelope"></i> Contact
-                        </a>
-                    </li>
-                    <li class="nav-item mt-4">
-                        <a class="nav-link" href="/logout">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
+  
+      <!-- Sidebar -->
+      <div class="mobile-menu-bar d-md-none">
+        <button class="mobile-menu-btn">
+            <i class="bi bi-list"></i> Menu
+        </button>
+    </div>    
+      <nav id="sidebarMenu" class="col-12 col-md-2 sidebar collapse d-md-block">
+        <div class="position-sticky">
+          <div class="text-center mb-4">
+            <h4 class="highlight mb-0">
+              <i class="bi bi-shield-check"></i> Admin Panel
+            </h4>
+            <small class="text-muted">Dashboard</small>
+          </div>
+          <hr>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin-home">
+                <i class="bi bi-house-door"></i> Home
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin-about">
+                <i class="bi bi-person"></i> About
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin-experience">
+                <i class="bi bi-briefcase"></i> Experience
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin-education">
+                <i class="bi bi-mortarboard"></i> Education
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin-certification">
+                <i class="bi bi-award"></i> Certification
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin-project">
+                <i class="bi bi-folder"></i> Project
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/admin-contact">
+                <i class="bi bi-envelope"></i> Contact
+              </a>
+            </li>
+            <li class="nav-item mt-4">
+              <a class="nav-link" href="/logout">
+                <i class="bi bi-box-arrow-right"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+  
       <!-- Main Content -->
       <main class="col-md-10 py-4 px-md-4">
         <!-- Page Header -->
@@ -692,26 +770,33 @@
   ></script>
 
   <!-- Pre-fill the modal textarea on open -->
-  <script>
-    const editBioHeadingModal = document.getElementById('editBioHeadingModal');
+  <!-- Edit Bio Heading Modal -->
+<script>
+  const editBioHeadingModal = document.getElementById('editBioHeadingModal');
+  if (editBioHeadingModal) {
     editBioHeadingModal.addEventListener('show.bs.modal', (event) => {
       const button = event.relatedTarget;
       const heading = button.getAttribute('data-heading') || '';
       editBioHeadingModal.querySelector('#editedBioHeading').value = heading;
     });
-  </script>
+  }
+</script>
 
-  <!-- Prefill Script -->
-  <script>
-    const editBioModal = document.getElementById('editBioModal');
+<!-- Bio Modal Prefill -->
+<script>
+  const editBioModal = document.getElementById('editBioModal');
+  if (editBioModal) {
     editBioModal.addEventListener('show.bs.modal', event => {
       const btn = event.relatedTarget;
       const bio = btn.getAttribute('data-bio') || '';
       editBioModal.querySelector('#editedBio').value = bio;
     });
+  }
 
-    // Edit modal prefill
-    document.getElementById('editSkillModal').addEventListener('show.bs.modal', event => {
+  // Edit Skill Prefill
+  const editSkillModal = document.getElementById('editSkillModal');
+  if (editSkillModal) {
+    editSkillModal.addEventListener('show.bs.modal', event => {
       const btn = event.relatedTarget;
       document.getElementById('editSkillIndex').value = btn.dataset.index;
       document.getElementById('editedTitle').value = btn.dataset.title;
@@ -719,12 +804,36 @@
       document.getElementById('editedPercentage').value = btn.dataset.pct;
       document.getElementById('editedCategory').value = btn.dataset.category || 'Cloud & DevOps';
     });
+  }
 
-    // Delete modal prefill
-    document.getElementById('deleteSkillModal').addEventListener('show.bs.modal', event => {
+  // Delete Skill Prefill
+  const deleteSkillModal = document.getElementById('deleteSkillModal');
+  if (deleteSkillModal) {
+    deleteSkillModal.addEventListener('show.bs.modal', event => {
       document.getElementById('deleteSkillIndex').value = event.relatedTarget.dataset.index;
     });
-  </script>
+  }
+</script>
+
+<!-- Mobile Sidebar Toggle -->
+<script>
+  const menuBtn = document.querySelector(".mobile-menu-btn");
+  const sidebar = document.getElementById("sidebarMenu");
+
+  if (menuBtn && sidebar) {
+    menuBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("show");
+
+      // Toggle icon (inside <i> tag)
+      const icon = menuBtn.querySelector("i");
+      if (icon) {
+        icon.classList.toggle("bi-list");
+        icon.classList.toggle("bi-x");
+      }
+    });
+  }
+</script>
+
 
 </body>
 </html>

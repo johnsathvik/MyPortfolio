@@ -56,6 +56,18 @@
       transform: translateX(5px);
       border-left: 3px solid #ececec;
     }
+    .sidebar-toggle {
+      background: #232323;
+      border: 1px solid #ececec;
+      color: #ececec;
+      width: 100%;
+      margin-bottom: 15px;
+    }
+    .sidebar-toggle:hover {
+      background: #2c2c2c;
+      color: #ffffff;
+      border-color: #ffffff;
+    }
     .card {
       border: none;
       border-radius: 15px;
@@ -243,6 +255,54 @@
       background: #2c2c2c !important;
       color: #ececec !important;
     }
+
+    @media (max-width: 991.98px) {
+      .sidebar {
+        height: auto;
+        border-right: none;
+        border-bottom: 2px solid #2c2c2c;
+        margin-bottom: 20px;
+        padding: 15px 10px;
+      }
+      .sidebar .nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px;
+      }
+      .sidebar .nav-link {
+        width: calc(50% - 20px);
+        margin: 6px 10px;
+        justify-content: center;
+      }
+      .page-header .d-flex {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+      .actions-cell {
+        white-space: normal;
+      }
+      .actions-cell .btn {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+    }
+
+    @media (max-width: 575.98px) {
+      .sidebar .nav-link {
+        width: 100%;
+      }
+      main {
+        padding: 1.5rem 1rem !important;
+      }
+      .table-responsive {
+        border-radius: 12px;
+      }
+      .modal-dialog {
+        margin: 0.5rem;
+      }
+    }
   </style>
 </head>
 <body>
@@ -251,7 +311,12 @@
   <div class="row">
 
     <!-- Sidebar -->
-    <nav class="col-md-2 d-none d-md-block sidebar">
+    <div class="col-12 d-md-none">
+      <button class="btn sidebar-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="bi bi-list"></i> Menu
+      </button>
+    </div>
+    <nav id="sidebarMenu" class="col-12 col-md-2 sidebar collapse d-md-block">
       <div class="position-sticky">
         <div class="text-center mb-4">
           <h4 class="highlight mb-0">
@@ -306,7 +371,7 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="col-md-10 py-4 px-md-4">
+    <main class="col-12 col-md-10 py-4 px-md-4">
       <!-- Page Header -->
       <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">

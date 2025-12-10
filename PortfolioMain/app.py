@@ -1,8 +1,20 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
 import os, json
 import requests
+import smtplib
+from email.message import EmailMessage
 
 app = Flask(__name__)
+
+# ---------- Simple SMTP configuration (edit these values) ----------
+# For Gmail:
+#  - Enable 2FA on your Google account
+#  - Create an "App password" and paste it below
+SMTP_HOST = "smtp.gmail.com"
+SMTP_PORT = 587
+FROM_EMAIL = "swastikkulkarni737@gmail.com"        # TODO: put your Gmail here
+FROM_PASSWORD = "ehyjvencjiixpnjt"        # TODO: put your Gmail app password here
+TO_EMAIL = "swastikkulkarni737@gmail.com"       # Where you want to receive the contact emails
 
 # Firebase wrapper class to connect to Firebase Realtime Database
 class FirebaseApplication:
@@ -30,6 +42,42 @@ class FirebaseApplication:
 
 # Initialize Firebase connection (same database as admin)
 fb = FirebaseApplication('https://portfolio-536e2-default-rtdb.firebaseio.com/', None)
+
+
+def send_contact_email(name: str, email: str, subject: str, message: str) -> bool:
+    """Send the contact form data using a simple Gmail SMTP setup."""
+    # Basic safety: make sure config is filled
+    if "your_gmail_here" in FROM_EMAIL or "your_app_password_here" in FROM_PASSWORD:
+        print("⚠️ Please configure FROM_EMAIL and FROM_PASSWORD in app.py before sending email.")
+        return False
+
+    email_subject = subject.strip() if subject else "New Contact Form Submission"
+    body = (
+        f"New contact submission from your portfolio site.\n\n"
+        f"Name   : {name or 'N/A'}\n"
+        f"Email  : {email or 'N/A'}\n"
+        f"Subject: {subject or 'N/A'}\n\n"
+        f"Message:\n{message or ''}\n"
+    )
+
+    msg = EmailMessage()
+    msg["Subject"] = email_subject
+    msg["From"] = FROM_EMAIL
+    msg["To"] = TO_EMAIL
+    if email:
+        msg["Reply-To"] = email
+    msg.set_content(body)
+
+    try:
+        with smtplib.SMTP(SMTP_HOST, SMTP_PORT, timeout=30) as server:
+            server.starttls()
+            server.login(FROM_EMAIL, FROM_PASSWORD)
+            server.send_message(msg)
+        print("✅ Contact email sent successfully via Gmail SMTP.")
+        return True
+    except Exception as exc:
+        print(f"❌ Failed to send contact email: {exc}")
+        return False
 
 # --- Home Page ---
 @app.route('/')
@@ -218,10 +266,13 @@ def edit():
 
 @app.route('/contact', methods=['POST'])
 def contact():
-    name = request.form.get('name')
-    email = request.form.get('email')
-    subject = request.form.get('subject')
-    message = request.form.get('message')
+    name = request.form.get('name', '').strip()
+    email = request.form.get('email', '').strip()
+    subject = request.form.get('subject', '').strip()
+    message = request.form.get('message', '').strip()
+
+    if not all([name, email, message]):
+        return jsonify({'status': 'error', 'message': 'Name, email, and message are required.'}), 400
 
     # Send to Telegram (optional - same as admin uses)
     try:
@@ -241,6 +292,10 @@ def contact():
     print(f"Email: {email}")
     print(f"Subject: {subject}")
     print(f"Message: {message}\n")
+
+    email_sent = send_contact_email(name, email, subject, message)
+    if not email_sent:
+        print("⚠️ Email delivery failed or skipped; check Gmail SMTP configuration in app.py.")
 
     return "OK"
 
@@ -284,3 +339,9 @@ def linkedin():
 # --- Run Flask App ---
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+
+#FROM_EMAIL: must be the Gmail account you’re logging in with (the one you created the app password for).
+#TO_EMAIL: is where the admin receives the messages – this can be the same Gmail or any other email (Gmail, Outlook, company mail, etc.).

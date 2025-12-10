@@ -8,9 +8,7 @@ from flask import make_response
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
-# CRITICAL FIX: Load secret key from environment variable for security.
-# IMPORTANT: Before running, set the environment variable: export FLASK_SECRET_KEY='your_new_long_secret_key'
-app.secret_key = os.environ.get('*John3211#*John3211#*John3211#*John3211#', '*John3211#*John3211#*John3211#*John3211#') 
+app.secret_key = '*John3211#*John3211#*John3211#*John3211#*John3211#'
 
 # Firebase wrapper class to replace python-firebase
 class FirebaseApplication:
@@ -23,7 +21,6 @@ class FirebaseApplication:
             path = path[1:]
         url = f"{self.url}/{path}.json"
         if key:
-            # Handles /path/key.json
             url = f"{self.url}/{path}/{key}.json"
         return url
     
@@ -47,108 +44,60 @@ class FirebaseApplication:
         except requests.exceptions.RequestException:
             return None
     
-    # REFACTORED FIX: Simplified and corrected PUT request logic
     def put(self, path, key=None, data=None):
         """PUT request (updates/replaces)
         
-        Supports two main update patterns:
-        1. Update a whole record: fb.put('/path', record_key, data) -> PUT data at /path/record_key.json
-        2. Update a field in a record: fb.put('/path/record_key', field_name, value) -> PUT value at /path/record_key/field_name.json
+        Usage patterns:
+        - fb.put('/path', key, data) -> PUT data at /path/key
+        - fb.put('/path/field', 'field_name', value) -> PUT value at /path/field/field_name
+        - fb.put('/path', data) -> PUT data at /path
         """
-        
-        put_data = None
-        url = None
-        
         if key is not None and data is not None:
-            # Case 1 (Field update, e.g. updating 'skills' inside a record key): 
-            # path='/landing/skills-list/-N...', key='skills', data=[...]
-            # Case 2 (Full record update, e.g. updating an experience entry): 
-            # path='/experience', key='-N...', data={...}
-            
-            # Check if path already contains the parent key (e.g., /landing/skills-list/-N...)
-            if path.count('/') > 1 and len(path.split('/')) > 2 and path.split('/')[-1] in fb.get(path.rsplit('/', 1)[0], None) or not data:
-                # If path contains the record key, treat 'key' as the field name
-                # Builds URL like: /landing/skills-list/-N.../skills.json
+            # Handle: fb.put('/path', key, data) or fb.put('/path/field', 'field', value)
+            # If path already ends with key-like pattern, treat key as field name
+            if '/' in path and path.split('/')[-1] not in ['', None]:
+                # Path already has a key, treat key as field name and data as value
                 url = self._build_path(f"{path}/{key}")
             else:
-                # Treat 'key' as the record key (for full replacement of the record)
-                # Builds URL like: /experience/-N....json
+                # Standard: path/key
                 url = self._build_path(path, key)
             put_data = data
-            
         elif key is not None and data is None:
-            # This handles the pattern: fb.put('/path/key', data) where data is passed as 'key'
-            # (Which is often used for replacement of a key-value pair, but not used here for complexity)
-            # We assume the standard pattern is /path, key, data
-            # If data is None, we need to handle full PUT replacement (e.g. for full experience update)
-             if len(path.split('/')) == 2: # e.g. /experience
-                url = self._build_path(path, key)
-                put_data = key # Error handling: key should be the data here, but this is a misuse of the original PUT logic.
-             else:
-                # Fallback to the original path
-                url = self._build_path(path)
-                put_data = key # If key is the data payload, this is correct for a POST-like PUT
-
-        # Handle the one-off use of PUT for DELETE (key=None, data=None, response.delete)
-        elif 'delete' in request.form.get('action', '').lower():
-            # This is a placeholder for delete, but Firebase PUT doesn't support delete like this.
-            # The delete routes use a separate method.
-            pass
-            
-        if not url or put_data is None:
-             # Try a final time if it's a full replacement put where data is passed as 'key'
-             # e.g., fb.put('/about/bio/-N...', {'bio': new_bio})
-            if key is not None and data is None and path.count('/') > 1:
-                url = self._build_path(path)
-                put_data = key
-            elif key is not None and data is None:
-                # This catches the legacy usage of key as the data and path as the full endpoint
-                url = self._build_path(path)
-                put_data = key
-            elif key is None and data is not None:
-                # This should not happen with the app's structure
-                url = self._build_path(path)
-                put_data = data
-            elif key is None and data is None:
-                 return None # No operation possible
-
-        if not url or put_data is None:
-             return None
+            # Handle: fb.put('/path', key) where key is the data
+            url = self._build_path(path)
+            put_data = key
+        else:
+            # Handle: fb.put('/path', data) - data is passed as key parameter
+            url = self._build_path(path)
+            put_data = key if key is not None else data
         
         try:
-            # Use requests.delete for delete operation if path suggests it
-            if 'delete' in request.path.lower():
-                 response = requests.delete(url)
-            else:
-                 response = requests.put(url, json=put_data)
-            
+            response = requests.put(url, json=put_data)
             response.raise_for_status()
-            return response.json() if response.text else True
+            return response.json()
         except requests.exceptions.RequestException:
             return None
-
-    def delete(self, path, key):
+    
+    def delete(self, path, key=None):
         """DELETE request"""
         url = self._build_path(path, key)
         try:
             response = requests.delete(url)
             response.raise_for_status()
-            return response.json() if response.text else True
+            return True
         except requests.exceptions.RequestException:
-            return None
-
+            return False
 
 fb = FirebaseApplication('https://portfolio-536e2-default-rtdb.firebaseio.com/', None)
 
-# Code Quality Improvement: Login decorator
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('admin_logged_in'):
-            flash("You must log in to access this page.", "warning")
-            return redirect(url_for('admin_login'))
-        return f(*args, **kwargs)
-    return decorated_function
+# def login_required(f):
+#     @wraps(f)
+#     def decorated_function(*args, **kwargs):
+#         if not session.get('admin_logged_in'):
+#             return redirect(url_for('admin_login'))
+#         return f(*args, **kwargs)
+#     return decorated_function
+
 
 
 def nocache(view):
@@ -164,8 +113,6 @@ def nocache(view):
 @app.route('/admin-profile-image/<path:filename>')
 def admin_profile_image(filename):
     """Serve profile images from main project static folder"""
-    # NOTE: This path assumes a standard Flask project structure where 'main/project' is a sibling folder
-    # to the directory where this app.py is run from, and 'static' is inside 'project'.
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     static_dir = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'profile')
     return send_from_directory(static_dir, filename)
@@ -178,7 +125,6 @@ def admin_login():
 
         links = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None)
         if links:
-            # The actual credentials might be stored at the root level of the links payload
             stored_username = links.get('admin_username')
             stored_password = links.get('admin_password')
 
@@ -194,10 +140,15 @@ def admin_login():
     
     return render_template('admin-login.html')
 
+
+
+
 @app.route('/admin-home', methods=['GET', 'POST'])
 @nocache
-@login_required # Use the decorator for cleaner code
 def admin_intro():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
     if request.method == 'POST':
         form = request.form
         if 'new_skill' in form:
@@ -208,7 +159,6 @@ def admin_intro():
                     key = next(iter(raw))
                     skills = raw[key].get('skills', [])
                     skills.append(new_skill)
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/landing/skills-list/{key}', 'skills', skills)
                 else:
                     fb.post('/landing/skills-list', {'skills': [new_skill]})
@@ -221,7 +171,6 @@ def admin_intro():
                 skills = raw[key].get('skills', [])
                 if 0 <= idx < len(skills):
                     skills[idx] = edited
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/landing/skills-list/{key}', 'skills', skills)
         elif 'delete_index' in form:
             idx = int(form['delete_index'])
@@ -231,7 +180,6 @@ def admin_intro():
                 skills = raw[key].get('skills', [])
                 if 0 <= idx < len(skills):
                     skills.pop(idx)
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/landing/skills-list/{key}', 'skills', skills)
         elif 'edited_bio' in form:
             new_bio = form['edited_bio'].strip()
@@ -239,7 +187,6 @@ def admin_intro():
                 raw_bio = fb.get('/landing/bio', None) or {}
                 if raw_bio:
                     bio_key = next(iter(raw_bio))
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/landing/bio/{bio_key}', 'bio', new_bio)
                 else:
                     fb.post('/landing/bio', {'bio': new_bio})
@@ -260,9 +207,13 @@ def admin_intro():
 
     return render_template('admin-home.html', skills=skills, bio=bio, profile_image_url=profile_image_url)
 
+
+
 @app.route('/admin-about', methods=['GET', 'POST'])
-@login_required # Use the decorator
 def admin_about():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+
     # Handle file upload
     if 'resume_file' in request.files:
         file = request.files['resume_file']
@@ -276,9 +227,11 @@ def admin_about():
                 return redirect(url_for('admin_about'))
             
             # Define the path to save the resume
+            # Path to main project's static/resume folder
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             resume_dir = os.path.join(base_dir, 'main', 'project', 'static', 'resume')
             
+            # Create directory if it doesn't exist
             os.makedirs(resume_dir, exist_ok=True)
             
             # Save file as Resume.pdf or Resume.txt
@@ -293,13 +246,13 @@ def admin_about():
             if os.path.exists(old_txt) and resume_filename != 'Resume.txt':
                 os.remove(old_txt)
             
+            # Save the new file
             file.save(resume_path)
             
             # Store resume info in Firebase
             raw_resume = fb.get('/about/resume', None) or {}
             if raw_resume:
                 key = next(iter(raw_resume))
-                # FIX uses refactored PUT method: path, field_name, value
                 fb.put(f'/about/resume/{key}', 'filename', resume_filename)
                 fb.put(f'/about/resume/{key}', 'file_type', file_ext[1:].upper())
             else:
@@ -327,7 +280,6 @@ def admin_about():
                     'percentage': pct,
                     'category': category
                 })
-                # FIX uses refactored PUT method: path, field_name, value
                 fb.put(f'/about/skills/{key}', 'skills', skills)
             else:
                 fb.post('/about/skills', {
@@ -345,7 +297,6 @@ def admin_about():
             raw_head = fb.get('/about/heading', None) or {}
             if raw_head:
                 key = next(iter(raw_head))
-                # FIX uses refactored PUT method: path, field_name, value
                 fb.put(f'/about/heading/{key}', 'heading', new_heading)
             else:
                 fb.post('/about/heading', {'heading': new_heading})
@@ -355,7 +306,6 @@ def admin_about():
             raw = fb.get('/about/bio', None) or {}
             if raw:
                 key = next(iter(raw))
-                # FIX uses refactored PUT method: path, field_name, value
                 fb.put(f'/about/bio/{key}', 'bio', new_bio)
             else:
                 fb.post('/about/bio', {'bio': new_bio})
@@ -368,7 +318,6 @@ def admin_about():
                 skills = raw[key].get('skills', [])
                 if 0 <= idx < len(skills):
                     skills.pop(idx)
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/about/skills/{key}', 'skills', skills)
 
         elif 'edited_skill' in request.form and 'edited_description' in request.form and 'edited_percentage' in request.form:
@@ -386,7 +335,6 @@ def admin_about():
                     skills[idx]['Description'] = desc
                     skills[idx]['percentage']  = pct
                     skills[idx]['category']    = category
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/about/skills/{key}', 'skills', skills)
 
         return redirect(url_for('admin_about'))
@@ -413,10 +361,13 @@ def admin_about():
 
     return render_template('admin-about.html', bio=bio, heading=heading, skills=skills, current_resume=current_resume, resume_type=resume_type)
 
+
+
 @app.route('/admin-experience', methods=["GET", "POST"])
 @nocache
-@login_required # Use the decorator
 def admin_experience():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     
     edit_data = None
 
@@ -427,7 +378,6 @@ def admin_experience():
             raw_summary = fb.get('/resume/professional_summary', None) or {}
             if raw_summary:
                 key = next(iter(raw_summary))
-                # FIX uses refactored PUT method: path, field_name, value
                 fb.put(f'/resume/professional_summary/{key}', 'summary', new_summary)
             else:
                 fb.post('/resume/professional_summary', {'summary': new_summary})
@@ -447,7 +397,6 @@ def admin_experience():
                         'name': skill_name,
                         'percentage': skill_pct
                     })
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
                 else:
                     fb.post('/resume/technical_skills', {
@@ -471,7 +420,6 @@ def admin_experience():
                 if 0 <= idx < len(skills):
                     skills[idx]['name'] = skill_name
                     skills[idx]['percentage'] = skill_pct
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
             flash('Technical skill updated successfully!', 'success')
             return redirect(url_for('admin_experience'))
@@ -485,15 +433,14 @@ def admin_experience():
                 skills = raw[key].get('skills', [])
                 if 0 <= idx < len(skills):
                     skills.pop(idx)
-                    # FIX uses refactored PUT method: path, field_name, value
                     fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
             flash('Technical skill deleted successfully!', 'success')
             return redirect(url_for('admin_experience'))
         
-        # Handle Edit request (to populate the form)
+        # Handle Edit request
         elif 'edit_key' in request.form:
             key = request.form['edit_key']
-            edit_data = fb.get('/experience', key) # Use the correct get pattern
+            edit_data = fb.get(f'/experience/{key}', None)
             if edit_data:
                 edit_data['key'] = key  # Include the key for the update
         
@@ -506,10 +453,8 @@ def admin_experience():
                 "duration": request.form['duration'],
                 "description": request.form['description']
             }
-            # FIX uses refactored PUT method: path, record_key, data (full record replacement)
-            fb.put('/experience', key, updated) 
+            fb.put('/experience', key, updated)
             return redirect(url_for('admin_experience'))
-            
         # Handle Add new experience
         else:
             company = request.form.get("company")
@@ -552,6 +497,7 @@ def admin_experience():
 
     experiences = fb.get('/experience', None) or {}
     
+    # Ensure variables are always defined
     if professional_summary is None:
         professional_summary = ''
     if technical_skills is None:
@@ -565,25 +511,28 @@ def admin_experience():
                          professional_summary=professional_summary,
                          technical_skills=technical_skills)
 
+
 @app.route('/delete-experience', methods=['POST'])
 @nocache
-@login_required # Use the decorator
 def delete_experience():
     key = request.form.get('key')
     if key:
         fb.delete('/experience', key)
     return redirect(url_for('admin_experience'))
 
+
+
 @app.route('/admin-education', methods=["GET", "POST"])
 @nocache
-@login_required # Use the decorator
 def admin_education():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     edit_data = None
     if request.method == "POST":
         # Edit button clicked
         if 'edit_key' in request.form:
             key = request.form['edit_key']
-            edit_data = fb.get('/resume/education', key)
+            edit_data = fb.get(f'/resume/education/{key}', None)
             if edit_data:
                 edit_data['key'] = key
 
@@ -596,7 +545,6 @@ def admin_education():
                 "period": request.form['period'],
                 "description": request.form['description']
             }
-            # FIX uses refactored PUT method: path, record_key, data (full record replacement)
             fb.put('/resume/education', key, updated)
             return redirect(url_for('admin_education'))
 
@@ -624,19 +572,23 @@ def admin_education():
         edit_data=edit_data
     )
 
+
 @app.route('/delete-education', methods=["POST"])
 @nocache
-@login_required # Use the decorator
 def delete_education():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     key = request.form.get('key')
     if key:
         fb.delete('/resume/education', key)
     return redirect(url_for('admin_education'))
 
+
 @app.route('/admin-certification', methods=["GET", "POST"])
 @nocache
-@login_required # Use the decorator
 def admin_certification():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     
     edit_data = None
     
@@ -646,29 +598,35 @@ def admin_certification():
         if 'cert_image' in request.files:
             file = request.files['cert_image']
             if file and file.filename:
+                # Get file extension
                 filename = secure_filename(file.filename)
                 file_ext = os.path.splitext(filename)[1].lower()
                 
+                # Validate file type
                 allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
                 if file_ext not in allowed_extensions:
                     flash('Invalid file type. Please upload an image file (JPG, PNG, WEBP, etc.).', 'error')
                     return redirect(url_for('admin_certification'))
                 
+                # Define the path to save the image
                 base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
                 portfolio_dir = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'portfolio')
                 
+                # Create directory if it doesn't exist
                 os.makedirs(portfolio_dir, exist_ok=True)
                 
+                # Generate unique filename
                 unique_filename = f"cert-{uuid.uuid4().hex[:8]}{file_ext}"
                 image_path = f"assets/img/portfolio/{unique_filename}"
                 file_path = os.path.join(portfolio_dir, unique_filename)
                 
+                # Save the file
                 file.save(file_path)
         
         # Edit button clicked
         if 'edit_key' in request.form:
             key = request.form['edit_key']
-            edit_data = fb.get('/certifications', key)
+            edit_data = fb.get(f'/certifications/{key}', None)
             if edit_data:
                 edit_data['key'] = key
         
@@ -677,7 +635,7 @@ def admin_certification():
             key = request.form['update_key']
             # Get existing image path if no new file uploaded
             if not image_path:
-                existing_cert = fb.get('/certifications', key)
+                existing_cert = fb.get(f'/certifications/{key}', None)
                 if existing_cert:
                     image_path = existing_cert.get('image', '')
                 else:
@@ -690,7 +648,6 @@ def admin_certification():
                 "filter": request.form['filter'],
                 "url": request.form.get('url', '')  # Optional
             }
-            # FIX uses refactored PUT method: path, record_key, data (full record replacement)
             fb.put('/certifications', key, updated)
             flash('Certification updated successfully!', 'success')
             return redirect(url_for('admin_certification'))
@@ -721,20 +678,24 @@ def admin_certification():
         edit_data=edit_data
     )
 
+
 @app.route('/delete-certification', methods=["POST"])
 @nocache
-@login_required # Use the decorator
 def delete_certification():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     key = request.form.get('key')
     if key:
         fb.delete('/certifications', key)
         flash('Certification deleted successfully!', 'success')
     return redirect(url_for('admin_certification'))
 
+
 @app.route('/admin-project', methods=["GET", "POST"])
 @nocache
-@login_required # Use the decorator
 def admin_project():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     
     edit_data = None
     
@@ -742,7 +703,7 @@ def admin_project():
         # Edit button clicked
         if 'edit_key' in request.form:
             key = request.form['edit_key']
-            edit_data = fb.get('/projects', key)
+            edit_data = fb.get(f'/projects/{key}', None)
             if edit_data:
                 edit_data['key'] = key
         
@@ -755,7 +716,6 @@ def admin_project():
                 "icon": request.form['icon'],
                 "url": request.form.get('url', '')  # Optional
             }
-            # FIX uses refactored PUT method: path, record_key, data (full record replacement)
             fb.put('/projects', key, updated)
             flash('Project updated successfully!', 'success')
             return redirect(url_for('admin_project'))
@@ -785,35 +745,39 @@ def admin_project():
         edit_data=edit_data
     )
 
+
 @app.route('/delete-project', methods=["POST"])
 @nocache
-@login_required # Use the decorator
 def delete_project():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     key = request.form.get('key')
     if key:
         fb.delete('/projects', key)
         flash('Project deleted successfully!', 'success')
     return redirect(url_for('admin_project'))
 
+
 @app.route('/admin-contact', methods=["GET", "POST"])
 @nocache
-@login_required # Use the decorator
 def admin_contact():
-    
-    # The links are stored under a single, static key: -OOvwHeVJtSsrjh3QnWR
-    static_key = '-OOvwHeVJtSsrjh3QnWR'
-    link_path = f'/links/{static_key}/links'
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     
     if request.method == "POST":
+        # Get the links data
+        links = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None) or {}
         
         # Update contact information
         if 'email' in request.form or 'phone' in request.form:
             email = request.form.get('email', '').strip()
             phone = request.form.get('phone', '').strip()
             
-            # Use the correct, explicit path for field update
-            fb.put(link_path, 'email', email)
-            fb.put(link_path, 'phone', phone)
+            links['email'] = email
+            links['phone'] = phone
+            
+            fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', 'email', email)
+            fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', 'phone', phone)
             
             flash('Contact information updated successfully!', 'success')
             return redirect(url_for('admin_contact'))
@@ -825,26 +789,27 @@ def admin_contact():
             telegram = request.form.get('telegram', '').strip()
             whatsapp = request.form.get('whatsapp', '').strip()
             
-            # Use the correct, explicit path for field update
-            fb.put(link_path, 'linkedin', linkedin)
-            fb.put(link_path, 'github', github)
-            fb.put(link_path, 'telegram', telegram)
-            fb.put(link_path, 'whatsapp', whatsapp)
+            fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', 'linkedin', linkedin)
+            fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', 'github', github)
+            fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', 'telegram', telegram)
+            fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', 'whatsapp', whatsapp)
             
             flash('Social media links updated successfully!', 'success')
             return redirect(url_for('admin_contact'))
     
     # Get current contact information
-    contact_info = fb.get(link_path, None) or {}
+    contact_info = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None) or {}
     
     return render_template('admin-contact.html', contact_info=contact_info)
 
+
+
 @app.route('/logout')
-@login_required # Use the decorator
 def admin_logout():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
     session.clear()
-    flash("You have been logged out.", "info")
-    return redirect(url_for('admin_login'))
+    return redirect('admin-login')
 
 @app.route('/')
 def index():
@@ -852,3 +817,4 @@ def index():
 
 if __name__ == "__main__":
     app.run(port=5001)
+
