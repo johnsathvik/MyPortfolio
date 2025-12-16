@@ -90,13 +90,35 @@ class FirebaseApplication:
 
 fb = FirebaseApplication('https://portfolio-536e2-default-rtdb.firebaseio.com/', None)
 
-# def login_required(f):
-#     @wraps(f)
-#     def decorated_function(*args, **kwargs):
-#         if not session.get('admin_logged_in'):
-#             return redirect(url_for('admin_login'))
-#         return f(*args, **kwargs)
-#     return decorated_function
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        # 1. Check if session has login flag
+        if not session.get('admin_logged_in'):
+            return redirect(url_for('admin_login'))
+        
+        # 2. STRICT VALIDATION: Check if session credentials match current DB credentials
+        # This prevents access if password was changed in DB but user still has old cookie
+        current_db_links = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None)
+        if not current_db_links:
+             # Safety fallback: if DB unreadable, force re-login
+             session.clear()
+             flash("Session expired or database error. Please login again.")
+             return redirect(url_for('admin_login'))
+
+        db_username = current_db_links.get('admin_username')
+        db_password = current_db_links.get('admin_password')
+        
+        session_username = session.get('admin_username')
+        session_password = session.get('admin_password')
+
+        if session_username != db_username or session_password != db_password:
+            session.clear()
+            flash("Credentials changed. Please login again.")
+            return redirect(url_for('admin_login'))
+
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 
@@ -130,6 +152,9 @@ def admin_login():
 
             if username == stored_username and password == stored_password:
                 session['admin_logged_in'] = True
+                # Store credentials in session for strict validation
+                session['admin_username'] = stored_username
+                session['admin_password'] = stored_password
                 return redirect(url_for('admin_intro'))
             else:
                 flash("Invalid username or password.")
@@ -144,10 +169,11 @@ def admin_login():
 
 
 @app.route('/admin-home', methods=['GET', 'POST'])
+@login_required
 @nocache
 def admin_intro():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
+
 
     if request.method == 'POST':
         form = request.form
@@ -210,9 +236,9 @@ def admin_intro():
 
 
 @app.route('/admin-about', methods=['GET', 'POST'])
+@login_required
 def admin_about():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
 
     # Handle file upload
     if 'resume_file' in request.files:
@@ -364,10 +390,10 @@ def admin_about():
 
 
 @app.route('/admin-experience', methods=["GET", "POST"])
+@login_required
 @nocache
 def admin_experience():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     
     edit_data = None
 
@@ -523,10 +549,10 @@ def delete_experience():
 
 
 @app.route('/admin-education', methods=["GET", "POST"])
+@login_required
 @nocache
 def admin_education():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     edit_data = None
     if request.method == "POST":
         # Edit button clicked
@@ -574,10 +600,10 @@ def admin_education():
 
 
 @app.route('/delete-education', methods=["POST"])
+@login_required
 @nocache
 def delete_education():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     key = request.form.get('key')
     if key:
         fb.delete('/resume/education', key)
@@ -585,10 +611,10 @@ def delete_education():
 
 
 @app.route('/admin-certification', methods=["GET", "POST"])
+@login_required
 @nocache
 def admin_certification():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     
     edit_data = None
     
@@ -680,10 +706,10 @@ def admin_certification():
 
 
 @app.route('/delete-certification', methods=["POST"])
+@login_required
 @nocache
 def delete_certification():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     key = request.form.get('key')
     if key:
         fb.delete('/certifications', key)
@@ -692,10 +718,10 @@ def delete_certification():
 
 
 @app.route('/admin-project', methods=["GET", "POST"])
+@login_required
 @nocache
 def admin_project():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     
     edit_data = None
     
@@ -747,10 +773,10 @@ def admin_project():
 
 
 @app.route('/delete-project', methods=["POST"])
+@login_required
 @nocache
 def delete_project():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     key = request.form.get('key')
     if key:
         fb.delete('/projects', key)
@@ -759,10 +785,10 @@ def delete_project():
 
 
 @app.route('/admin-contact', methods=["GET", "POST"])
+@login_required
 @nocache
 def admin_contact():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # Strict validation handled by decorator
     
     if request.method == "POST":
         # Get the links data
@@ -796,6 +822,35 @@ def admin_contact():
             
             flash('Social media links updated successfully!', 'success')
             return redirect(url_for('admin_contact'))
+
+        # Handle Credential Update
+        elif request.form.get('action') == 'update_credentials':
+            new_username = request.form.get('new_username', '').strip()
+            new_password = request.form.get('new_password', '').strip()
+            
+            updates = {}
+            msg_parts = []
+            
+            if new_username:
+                updates['admin_username'] = new_username
+                msg_parts.append("Username")
+            
+            if new_password:
+                updates['admin_password'] = new_password
+                msg_parts.append("Password")
+            
+            if updates:
+                # Update Firebase
+                for key, val in updates.items():
+                    fb.put('/links/-OOvwHeVJtSsrjh3QnWR/links', key, val)
+                
+                # Clear session and redirect to login
+                session.clear()
+                flash(f"{' and '.join(msg_parts)} updated successfully. Please login with your new credentials.", 'success')
+                return redirect(url_for('admin_login'))
+            else:
+                flash('No changes detected.', 'info')
+                return redirect(url_for('admin_contact'))
     
     # Get current contact information
     contact_info = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None) or {}
@@ -806,10 +861,9 @@ def admin_contact():
 
 @app.route('/logout')
 def admin_logout():
-    if not session.get('admin_logged_in'):
-        return redirect(url_for('admin_login'))
+    # No strict login required to logout, just clear session
     session.clear()
-    return redirect('admin-login')
+    return redirect(url_for('admin_login'))
 
 @app.route('/')
 def index():
