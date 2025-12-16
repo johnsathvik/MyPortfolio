@@ -200,7 +200,7 @@
             <div class="profile-card">
               <div class="profile-header">
                 <div class="profile-image">
-                  <img src="{{ url_for('static', filename='assets/img/profile/gettoknow.png') }}" alt="Profile Image"
+                  <img src="{{ url_for('static', filename='assets/img/profile/gettoknow.jpg') }}" alt="Profile Image"
                     class="img-fluid">
                 </div>
               </div>
@@ -889,7 +889,7 @@
               <p>Get in touch to share your ideas, explore opportunities, or start a conversation that could lead to
                 impactful collaborations and lasting relationships</p>
 
-              <form action="{{ url_for('contact') }}" method="post">
+              <form action="{{ url_for('contact') }}" method="post" class="php-email-form">
                 <div class="row gy-4">
 
                   <div class="col-md-6">

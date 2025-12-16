@@ -293,10 +293,11 @@ def contact():
     print(f"Subject: {subject}")
     print(f"Message: {message}\n")
 
-    email_sent = send_contact_email(name, email, subject, message)
-    if not email_sent:
-        print("⚠️ Email delivery failed or skipped; check Gmail SMTP configuration in app.py.")
-
+    # Email sending disabled by user preference (using Telegram instead)
+    # email_sent = send_contact_email(name, email, subject, message)
+    # if not email_sent:
+    #     print("⚠️ Email delivery failed or skipped; check Gmail SMTP configuration in app.py.")
+    
     return "OK"
 
 
