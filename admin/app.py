@@ -132,6 +132,18 @@ def nocache(view):
         return response
     return no_cache
 
+@app.after_request
+def add_header(response):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    if "Cache-Control" not in response.headers:
+        response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
+
 @app.route('/admin-profile-image/<path:filename>')
 def admin_profile_image(filename):
     """Serve profile images from main project static folder"""
@@ -861,14 +873,22 @@ def admin_contact():
 
 @app.route('/logout')
 def admin_logout():
-    # No strict login required to logout, just clear session
+    # Clear session data
     session.clear()
-    return redirect(url_for('admin_login'))
+    
+    # Create response to redirect to login
+    response = make_response(redirect(url_for('admin_login')))
+    
+    # Aggressively expire cookies
+    response.set_cookie('session', '', expires=0, path='/')
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    
+    return response
 
 @app.route('/')
 def index():
     return redirect(url_for('admin_login')) 
 
 if __name__ == "__main__":
-    app.run(port=5001)
+    app.run(port=5001, debug=True)
 
