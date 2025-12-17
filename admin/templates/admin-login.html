@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -36,7 +37,7 @@
       height: 100%;
       top: 0;
       left: 0;
-      background-image: 
+      background-image:
         radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
         radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
@@ -45,15 +46,33 @@
     }
 
     @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
     }
 
     @keyframes particleFloat {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      33% { transform: translate(30px, -30px) scale(1.1); }
-      66% { transform: translate(-20px, 20px) scale(0.9); }
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      33% {
+        transform: translate(30px, -30px) scale(1.1);
+      }
+
+      66% {
+        transform: translate(-20px, 20px) scale(0.9);
+      }
     }
 
     .login-container {
@@ -69,6 +88,7 @@
         opacity: 0;
         transform: translateY(50px) scale(0.9);
       }
+
       to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -76,14 +96,21 @@
     }
 
     @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
     }
 
     .card {
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 20px;
-      box-shadow: 
+      box-shadow:
         0 20px 60px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.05) inset,
         0 0 40px rgba(0, 0, 0, 0.3);
@@ -94,8 +121,15 @@
     }
 
     @keyframes cardGlow {
-      0%, 100% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 40px rgba(0, 0, 0, 0.3); }
-      50% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 0 50px rgba(255, 255, 255, 0.05); }
+
+      0%,
+      100% {
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset, 0 0 40px rgba(0, 0, 0, 0.3);
+      }
+
+      50% {
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset, 0 0 50px rgba(255, 255, 255, 0.05);
+      }
     }
 
     .card-header {
@@ -119,8 +153,13 @@
     }
 
     @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(100%);
+      }
     }
 
     .icon-wrapper {
@@ -140,12 +179,15 @@
     }
 
     @keyframes iconPulse {
-      0%, 100% { 
-        transform: scale(1); 
+
+      0%,
+      100% {
+        transform: scale(1);
         box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
       }
-      50% { 
-        transform: scale(1.05); 
+
+      50% {
+        transform: scale(1.05);
         box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
       }
     }
@@ -159,8 +201,15 @@
     }
 
     @keyframes iconBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
     }
 
     .card-header h3 {
@@ -180,6 +229,7 @@
         opacity: 0;
         transform: translateX(-20px);
       }
+
       to {
         opacity: 1;
         transform: translateX(0);
@@ -213,14 +263,20 @@
       animation: labelFadeIn 0.8s ease-out both;
     }
 
-    .form-label:nth-of-type(1) { animation-delay: 0.6s; }
-    .form-label:nth-of-type(2) { animation-delay: 0.8s; }
+    .form-label:nth-of-type(1) {
+      animation-delay: 0.6s;
+    }
+
+    .form-label:nth-of-type(2) {
+      animation-delay: 0.8s;
+    }
 
     @keyframes labelFadeIn {
       from {
         opacity: 0;
         transform: translateY(-10px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -232,14 +288,20 @@
       animation: inputSlideIn 0.8s ease-out both;
     }
 
-    .input-group:nth-of-type(1) { animation-delay: 0.7s; }
-    .input-group:nth-of-type(2) { animation-delay: 0.9s; }
+    .input-group:nth-of-type(1) {
+      animation-delay: 0.7s;
+    }
+
+    .input-group:nth-of-type(2) {
+      animation-delay: 0.9s;
+    }
 
     @keyframes inputSlideIn {
       from {
         opacity: 0;
         transform: translateX(-30px);
       }
+
       to {
         opacity: 1;
         transform: translateX(0);
@@ -331,6 +393,7 @@
         opacity: 0;
         transform: translateY(20px);
       }
+
       to {
         opacity: 1;
         transform: translateY(0);
@@ -368,8 +431,15 @@
     }
 
     @keyframes iconSlide {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(3px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(3px);
+      }
     }
 
     .alert {
@@ -383,9 +453,19 @@
     }
 
     @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-10px); }
-      75% { transform: translateX(10px); }
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-10px);
+      }
+
+      75% {
+        transform: translateX(10px);
+      }
     }
 
     .alert-danger {
@@ -403,8 +483,13 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     .footer-text i {
@@ -412,8 +497,15 @@
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 0.8; }
-      50% { opacity: 1; }
+
+      0%,
+      100% {
+        opacity: 0.8;
+      }
+
+      50% {
+        opacity: 1;
+      }
     }
 
     @media (max-width: 480px) {
@@ -442,27 +534,20 @@
       <div class="card-body">
         <form method="POST" action="/admin-login">
           {% with messages = get_flashed_messages() %}
-            {% if messages %}
-              <div class="alert alert-danger text-center" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                {{ messages[0] }}
-              </div>
-            {% endif %}
+          {% if messages %}
+          <div class="alert alert-danger text-center" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            {{ messages[0] }}
+          </div>
+          {% endif %}
           {% endwith %}
 
           <div class="mb-3">
             <label for="username" class="form-label">Username</label>
             <div class="input-group">
               <i class="bi bi-person-fill"></i>
-              <input 
-                type="text" 
-                name="username" 
-                id="username"
-                class="form-control" 
-                placeholder="Enter your username"
-                required
-                autocomplete="username"
-              >
+              <input type="text" name="username" id="username" class="form-control" placeholder="Enter your username"
+                required autocomplete="username">
             </div>
           </div>
 
@@ -470,15 +555,8 @@
             <label for="password" class="form-label">Password</label>
             <div class="input-group">
               <i class="bi bi-lock-fill"></i>
-              <input 
-                type="password" 
-                name="password" 
-                id="password"
-                class="form-control" 
-                placeholder="Enter your password"
-                required
-                autocomplete="current-password"
-              >
+              <input type="password" name="password" id="password" class="form-control"
+                placeholder="Enter your password" required autocomplete="current-password">
             </div>
           </div>
 
@@ -486,6 +564,13 @@
             <i class="bi bi-box-arrow-in-right me-2"></i>
             Sign In
           </button>
+
+          <div class="text-center mt-3">
+            <a href="{{ url_for('guest_login') }}" class="btn btn-outline-light btn-sm"
+              style="border-radius: 20px; padding: 5px 15px; opacity: 0.7;">
+              <i class="bi bi-eye"></i> View Demo (Guest)
+            </a>
+          </div>
         </form>
 
         <div class="footer-text">
@@ -496,4 +581,5 @@
     </div>
   </div>
 </body>
+
 </html>

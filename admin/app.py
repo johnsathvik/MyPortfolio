@@ -99,6 +99,11 @@ def login_required(f):
         
         # 2. STRICT VALIDATION: Check if session credentials match current DB credentials
         # This prevents access if password was changed in DB but user still has old cookie
+        
+        # GUEST MODE BYPASS: Guests don't have DB credentials to validate
+        if session.get('is_guest'):
+            return f(*args, **kwargs)
+
         current_db_links = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None)
         if not current_db_links:
              # Safety fallback: if DB unreadable, force re-login
@@ -151,6 +156,16 @@ def admin_profile_image(filename):
     static_dir = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'profile')
     return send_from_directory(static_dir, filename)
 
+@app.route('/guest-login')
+def guest_login():
+    """Handle Guest Login (Read-Only)"""
+    session.clear() # Clear any existing session
+    session['admin_logged_in'] = True
+    session['is_guest'] = True
+    session['admin_username'] = "Guest User"
+    flash("Logged in as Guest (Read-Only Mode)", "info")
+    return redirect(url_for('admin_intro'))
+
 @app.route('/admin-login', methods=["GET", "POST"])
 def admin_login():
     if request.method == 'POST':
@@ -188,6 +203,28 @@ def admin_intro():
 
 
     if request.method == 'POST':
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        if request.is_json:
+            data = request.get_json()
+            if 'reorder_skills' in data:
+                # GUEST GUARD
+                if session.get('is_guest'):
+                    return {'status': 'guest_mode', 'message': "Guest Mode: Changes simulated."}, 200
+                
+                new_order = data['reorder_skills']
+                if isinstance(new_order, list) and new_order:
+                    raw = fb.get('/landing/skills-list', None) or {}
+                    if raw:
+                        key = next(iter(raw))
+                        fb.put(f'/landing/skills-list/{key}', 'skills', new_order)
+                        return {'status': 'success'}, 200
+                    else:
+                         return {'status': 'error', 'message': 'No skills found'}, 400
+
         form = request.form
         if 'new_skill' in form:
             new_skill = form['new_skill'].strip()
@@ -254,6 +291,11 @@ def admin_about():
 
     # Handle file upload
     if 'resume_file' in request.files:
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         file = request.files['resume_file']
         if file and file.filename:
             # Check file extension
@@ -303,6 +345,11 @@ def admin_about():
             return redirect(url_for('admin_about'))
 
     if 'new_title' in request.form:
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         title = request.form['new_title'].strip()
         desc = request.form['new_description'].strip()
         pct = int(request.form['new_percentage'])
@@ -330,6 +377,11 @@ def admin_about():
                 })
 
     elif request.method == 'POST':
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         if 'edited_bio_heading' in request.form:
             new_heading = request.form['edited_bio_heading'].strip()
             raw_head = fb.get('/about/heading', None) or {}
@@ -410,6 +462,11 @@ def admin_experience():
     edit_data = None
 
     if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         # Handle Professional Summary update
         if 'edited_professional_summary' in request.form:
             new_summary = request.form['edited_professional_summary'].strip()
@@ -553,6 +610,11 @@ def admin_experience():
 @app.route('/delete-experience', methods=['POST'])
 @nocache
 def delete_experience():
+    # GUEST GUARD
+    if session.get('is_guest'):
+        flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+        return redirect(url_for('admin_experience'))
+
     key = request.form.get('key')
     if key:
         fb.delete('/experience', key)
@@ -567,6 +629,11 @@ def admin_education():
     # Strict validation handled by decorator
     edit_data = None
     if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         # Edit button clicked
         if 'edit_key' in request.form:
             key = request.form['edit_key']
@@ -616,6 +683,11 @@ def admin_education():
 @nocache
 def delete_education():
     # Strict validation handled by decorator
+    # GUEST GUARD
+    if session.get('is_guest'):
+        flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+        return redirect(url_for('admin_education'))
+
     key = request.form.get('key')
     if key:
         fb.delete('/resume/education', key)
@@ -631,6 +703,11 @@ def admin_certification():
     edit_data = None
     
     if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         # Handle file upload
         image_path = None
         if 'cert_image' in request.files:
@@ -722,6 +799,11 @@ def admin_certification():
 @nocache
 def delete_certification():
     # Strict validation handled by decorator
+    # GUEST GUARD
+    if session.get('is_guest'):
+        flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+        return redirect(url_for('admin_certification'))
+
     key = request.form.get('key')
     if key:
         fb.delete('/certifications', key)
@@ -738,6 +820,11 @@ def admin_project():
     edit_data = None
     
     if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
         # Edit button clicked
         if 'edit_key' in request.form:
             key = request.form['edit_key']
@@ -789,6 +876,11 @@ def admin_project():
 @nocache
 def delete_project():
     # Strict validation handled by decorator
+    # GUEST GUARD
+    if session.get('is_guest'):
+        flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+        return redirect(url_for('admin_project'))
+
     key = request.form.get('key')
     if key:
         fb.delete('/projects', key)
@@ -803,6 +895,11 @@ def admin_contact():
     # Strict validation handled by decorator
     
     if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(url_for('admin_contact'))
+
         # Get the links data
         links = fb.get('/links/-OOvwHeVJtSsrjh3QnWR/links', None) or {}
         
