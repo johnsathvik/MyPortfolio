@@ -1,326 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - About</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <style>
-      body {
-        background: #1f1f1f;
-        color: #ffffff;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      }
-      .highlight {
-        color: #ececec;
-      }
-      .btn-primary {
-        background: #232323;
-        border: 1px solid #ececec;
-        color: #ececec;
-        transition: all 0.3s ease;
-      }
-      .btn-primary:hover {
-        background: #2c2c2c;
-        border-color: #ffffff;
-        color: #ffffff;
-        transform: translateY(-2px);
-      }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - About</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: #1f1f1f;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .highlight {
+      color: #ececec;
+    }
+
+    .btn-primary {
+      background: #232323;
+      border: 1px solid #ececec;
+      color: #ececec;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: #2c2c2c;
+      border-color: #ffffff;
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .sidebar {
+      height: 100vh;
+      background: #232323;
+      border-right: 2px solid #2c2c2c;
+      padding-top: 20px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .sidebar a {
+      color: #ececec;
+      text-decoration: none;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+      margin: 2px 10px;
+    }
+
+    .sidebar a i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background: #2c2c2c;
+      color: #ffffff;
+      transform: translateX(5px);
+      border-left: 3px solid #ececec;
+    }
+
+    .card {
+      border: none;
+      border-radius: 15px;
+      background: #232323;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .card-header {
+      background: #2c2c2c;
+      color: #ffffff;
+      font-weight: 600;
+      padding: 15px 20px;
+      border: none;
+      border-bottom: 1px solid #393939;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #ececec;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      background: #2c2c2c;
+      border: 1px solid #393939;
+      color: #ffffff;
+    }
+
+    .form-control:focus {
+      background: #2c2c2c;
+      border-color: #ececec;
+      color: #ffffff;
+    }
+
+    .table {
+      margin-bottom: 0;
+      color: #ffffff;
+    }
+
+    .table thead th {
+      background-color: #2c2c2c;
+      border-bottom: 2px solid #393939;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      color: #ececec;
+    }
+
+    .table tbody tr {
+      background: #232323;
+    }
+
+    .table tbody tr:hover {
+      background: #2c2c2c;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      border-radius: 6px;
+    }
+
+    .bio-preview {
+      background: #2c2c2c;
+      padding: 20px;
+      border-radius: 10px;
+      border-left: 4px solid #ececec;
+      line-height: 1.8;
+      color: #ececec;
+    }
+
+    .actions-cell {
+      white-space: nowrap;
+    }
+
+    .page-header {
+      background: #232323;
+      color: white;
+      border-radius: 15px;
+      padding: 25px 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border: 1px solid #393939;
+    }
+
+    .section-divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ececec, transparent);
+      margin: 30px 0;
+      border: none;
+    }
+
+    .badge {
+      font-weight: 600;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      background: #2c2c2c;
+      color: #ececec;
+      border: 1px solid #393939;
+    }
+
+    .badge.bg-primary {
+      background: #2c2c2c !important;
+      color: #ececec !important;
+    }
+
+    .badge.bg-secondary {
+      background: #2c2c2c !important;
+      color: #ececec !important;
+    }
+
+    .card-body {
+      padding: 25px;
+      background: #232323;
+      color: #ffffff;
+    }
+
+    .btn-light {
+      background: #2c2c2c;
+      border: 1px solid #393939;
+      color: #ececec;
+    }
+
+    .btn-light:hover {
+      background: #393939;
+      border-color: #ececec;
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      background: #2c2c2c;
+      border: 1px solid #4a4a4a;
+      color: #ececec;
+    }
+
+    .btn-danger:hover {
+      background: #393939;
+      border-color: #ececec;
+      color: #ffffff;
+    }
+
+    .btn-warning {
+      background: #2c2c2c;
+      border: 1px solid #4a4a4a;
+      color: #ececec;
+    }
+
+    .btn-warning:hover {
+      background: #393939;
+      border-color: #ececec;
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      background: #2c2c2c;
+      border: 1px solid #393939;
+      color: #ececec;
+    }
+
+    .btn-secondary:hover {
+      background: #393939;
+      border-color: #ececec;
+      color: #ffffff;
+    }
+
+    .modal-content {
+      background: #232323;
+      color: #ffffff;
+      border: 1px solid #393939;
+    }
+
+    .modal-header {
+      background: #2c2c2c;
+      border-bottom: 1px solid #393939;
+    }
+
+    .modal-footer {
+      border-top: 1px solid #393939;
+    }
+
+    .modal-body {
+      background: #232323;
+    }
+
+    .alert {
+      border: 1px solid #393939;
+    }
+
+    .alert-success {
+      background: #2c2c2c;
+      border-color: #4a4a4a;
+      color: #ececec;
+    }
+
+    .alert-danger {
+      background: #2c2c2c;
+      border-color: #4a4a4a;
+      color: #ececec;
+    }
+
+    .alert-info {
+      background: #2c2c2c;
+      border-color: #4a4a4a;
+      color: #ececec;
+    }
+
+    .text-muted {
+      color: #9a9a9a !important;
+    }
+
+    .text-primary {
+      color: #ececec !important;
+    }
+
+    .table-light {
+      background: #2c2c2c !important;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background: #2c2c2c;
+    }
+
+    .table-hover tbody tr:hover {
+      background: #2c2c2c;
+    }
+
+    .bg-light {
+      background: #2c2c2c !important;
+      color: #ececec !important;
+    }
+
+    .contact-info-item {
+      background: #2c2c2c;
+      border-left: 4px solid #ececec;
+    }
+
+    @media (max-width: 991.98px) {
       .sidebar {
-        height: 100vh;
-        background: #232323;
-        border-right: 2px solid #2c2c2c;
-        padding-top: 20px;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+        height: auto;
+        border-right: none;
+        border-bottom: 2px solid #2c2c2c;
+        margin-bottom: 20px;
+        padding: 15px 10px;
       }
-      .sidebar a {
-        color: #ececec;
-        text-decoration: none;
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        border-radius: 8px;
-        margin: 2px 10px;
+
+      .sidebar .nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 4px;
       }
-      .sidebar a i {
-        width: 20px;
+
+      .sidebar .nav-link {
+        width: calc(50% - 20px);
+        margin: 6px 10px;
+        justify-content: center;
+      }
+
+      .page-header .d-flex {
+        flex-direction: column;
+        gap: 15px;
         text-align: center;
       }
-      .sidebar a:hover, .sidebar a.active {
-        background: #2c2c2c;
-        color: #ffffff;
-        transform: translateX(5px);
-        border-left: 3px solid #ececec;
+
+      .actions-cell {
+        white-space: normal;
       }
-      .card {
-        border: none;
-        border-radius: 15px;
-        background: #232323;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        transition: all 0.3s ease;
-        overflow: hidden;
-      }
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-      }
-      .card-header {
-        background: #2c2c2c;
-        color: #ffffff;
-        font-weight: 600;
-        padding: 15px 20px;
-        border: none;
-        border-bottom: 1px solid #393939;
-      }
-      .form-label {
-        font-weight: 600;
-        color: #ececec;
+
+      .actions-cell .btn {
+        width: 100%;
         margin-bottom: 8px;
       }
-      .form-control {
-        background: #2c2c2c;
-        border: 1px solid #393939;
-        color: #ffffff;
-      }
-      .form-control:focus {
-        background: #2c2c2c;
-        border-color: #ececec;
-        color: #ffffff;
-      }
-      .table {
-        margin-bottom: 0;
-        color: #ffffff;
-      }
-      .table thead th {
-        background-color: #2c2c2c;
-        border-bottom: 2px solid #393939;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        letter-spacing: 0.5px;
-        color: #ececec;
-      }
-      .table tbody tr {
-        background: #232323;
-      }
-      .table tbody tr:hover {
-        background: #2c2c2c;
-      }
-      .btn-sm {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        border-radius: 6px;
-      }
-      .bio-preview {
-        background: #2c2c2c;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 4px solid #ececec;
-        line-height: 1.8;
-        color: #ececec;
-      }
-      .actions-cell {
-        white-space: nowrap;
-      }
-      .page-header {
-        background: #232323;
-        color: white;
-        border-radius: 15px;
-        padding: 25px 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        border: 1px solid #393939;
-      }
-      .section-divider {
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #ececec, transparent);
-        margin: 30px 0;
-        border: none;
-      }
-      .badge {
-        font-weight: 600;
-        padding: 6px 12px;
-        font-size: 0.85rem;
-        background: #2c2c2c;
-        color: #ececec;
-        border: 1px solid #393939;
-      }
-      .badge.bg-primary {
-        background: #2c2c2c !important;
-        color: #ececec !important;
-      }
-      .badge.bg-secondary {
-        background: #2c2c2c !important;
-        color: #ececec !important;
-      }
-      .card-body {
-        padding: 25px;
-        background: #232323;
-        color: #ffffff;
-      }
-      .btn-light {
-        background: #2c2c2c;
-        border: 1px solid #393939;
-        color: #ececec;
-      }
-      .btn-light:hover {
-        background: #393939;
-        border-color: #ececec;
-        color: #ffffff;
-      }
-      .btn-danger {
-        background: #2c2c2c;
-        border: 1px solid #4a4a4a;
-        color: #ececec;
-      }
-      .btn-danger:hover {
-        background: #393939;
-        border-color: #ececec;
-        color: #ffffff;
-      }
-      .btn-warning {
-        background: #2c2c2c;
-        border: 1px solid #4a4a4a;
-        color: #ececec;
-      }
-      .btn-warning:hover {
-        background: #393939;
-        border-color: #ececec;
-        color: #ffffff;
-      }
-      .btn-secondary {
-        background: #2c2c2c;
-        border: 1px solid #393939;
-        color: #ececec;
-      }
-      .btn-secondary:hover {
-        background: #393939;
-        border-color: #ececec;
-        color: #ffffff;
-      }
-      .modal-content {
-        background: #232323;
-        color: #ffffff;
-        border: 1px solid #393939;
-      }
-      .modal-header {
-        background: #2c2c2c;
-        border-bottom: 1px solid #393939;
-      }
-      .modal-footer {
-        border-top: 1px solid #393939;
-      }
-      .modal-body {
-        background: #232323;
-      }
-      .alert {
-        border: 1px solid #393939;
-      }
-      .alert-success {
-        background: #2c2c2c;
-        border-color: #4a4a4a;
-        color: #ececec;
-      }
-      .alert-danger {
-        background: #2c2c2c;
-        border-color: #4a4a4a;
-        color: #ececec;
-      }
-      .alert-info {
-        background: #2c2c2c;
-        border-color: #4a4a4a;
-        color: #ececec;
-      }
-      .text-muted {
-        color: #9a9a9a !important;
-      }
-      .text-primary {
-        color: #ececec !important;
-      }
-      .table-light {
-        background: #2c2c2c !important;
-      }
-      .table-striped tbody tr:nth-of-type(odd) {
-        background: #2c2c2c;
-      }
-      .table-hover tbody tr:hover {
-        background: #2c2c2c;
-      }
-      .bg-light {
-        background: #2c2c2c !important;
-        color: #ececec !important;
-      }
-      .contact-info-item {
-        background: #2c2c2c;
-        border-left: 4px solid #ececec;
-      }
-      @media (max-width: 991.98px) {
-        .sidebar {
-          height: auto;
-          border-right: none;
-          border-bottom: 2px solid #2c2c2c;
-          margin-bottom: 20px;
-          padding: 15px 10px;
-        }
-        .sidebar .nav {
-          flex-direction: row;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 4px;
-        }
-        .sidebar .nav-link {
-          width: calc(50% - 20px);
-          margin: 6px 10px;
-          justify-content: center;
-        }
-        .page-header .d-flex {
-          flex-direction: column;
-          gap: 15px;
-          text-align: center;
-        }
-        .actions-cell {
-          white-space: normal;
-        }
-        .actions-cell .btn {
-          width: 100%;
-          margin-bottom: 8px;
-        }
-      }
-  
-      @media (max-width: 575.98px) {
-        .sidebar .nav-link {
-          width: 100%;
-        }
-        main {
-          padding: 1.5rem 1rem !important;
-        }
-        .table-responsive {
-          border-radius: 12px;
-        }
-        .modal-dialog {
-          margin: 0.5rem;
-        }
-      }
-      @media (max-width: 768px) {
-        #sidebarMenu {
-            display: none !important;
-        }
-    
-        #sidebarMenu.show {
-            display: block !important;
-        }
     }
+
+    @media (max-width: 575.98px) {
+      .sidebar .nav-link {
+        width: 100%;
+      }
+
+      main {
+        padding: 1.5rem 1rem !important;
+      }
+
+      .table-responsive {
+        border-radius: 12px;
+      }
+
+      .modal-dialog {
+        margin: 0.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #sidebarMenu {
+        display: none !important;
+      }
+
+      #sidebarMenu.show {
+        display: block !important;
+      }
+    }
+
     .mobile-menu-bar {
       width: 100%;
       padding: 10px;
       background: transparent;
-  }
-  
-  .mobile-menu-btn {
+    }
+
+    .mobile-menu-btn {
       width: 100%;
       background: #242424;
       color: white;
@@ -328,22 +390,21 @@
       border: 1px solid #444;
       border-radius: 10px;
       font-size: 15px;
-  }
-  
-  
-    </style>
+    }
+  </style>
 </head>
+
 <body>
 
   <div class="container-fluid">
     <div class="row">
-  
+
       <!-- Sidebar -->
       <div class="mobile-menu-bar d-md-none">
         <button class="mobile-menu-btn">
-            <i class="bi bi-list"></i> Menu
+          <i class="bi bi-list"></i> Menu
         </button>
-    </div>    
+      </div>
       <nav id="sidebarMenu" class="col-12 col-md-2 sidebar collapse d-md-block">
         <div class="position-sticky">
           <div class="text-center mb-4">
@@ -390,14 +451,14 @@
               </a>
             </li>
             <li class="nav-item mt-4">
-              <a class="nav-link" href="/logout">
+              <a class="nav-link" href="{{ url_for('admin_logout') }}">
                 <i class="bi bi-box-arrow-right"></i> Logout
               </a>
             </li>
           </ul>
         </div>
       </nav>
-  
+
       <!-- Main Content -->
       <main class="col-md-10 py-4 px-md-4">
         <!-- Page Header -->
@@ -414,17 +475,18 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-            {% for category, message in messages %}
-              <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
-                <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }}"></i> {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show"
+          role="alert">
+          <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }}"></i> {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
 
         <!-- Manage Bio Heading Card -->
@@ -442,15 +504,16 @@
               <i class="bi bi-info-circle"></i> No heading added yet. Click "Edit Heading" to add one.
             </div>
             {% endif %}
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editBioHeadingModal" data-heading="{{ heading|e }}">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editBioHeadingModal"
+              data-heading="{{ heading|e }}">
               <i class="bi bi-pencil-square"></i> {{ 'Edit Heading' if heading else 'Add Heading' }}
             </button>
           </div>
         </div>
 
         <!-- Edit Bio Heading Modal -->
-        <div
-          class="modal fade" id="editBioHeadingModal" tabindex="-1" aria-labelledby="editBioHeadingModalLabel" aria-hidden="true">
+        <div class="modal fade" id="editBioHeadingModal" tabindex="-1" aria-labelledby="editBioHeadingModalLabel"
+          aria-hidden="true">
           <div class="modal-dialog">
             <form method="post" action="{{ url_for('admin_about') }}">
               <div class="modal-content">
@@ -463,13 +526,8 @@
                 <div class="modal-body">
                   <div class="mb-3">
                     <label for="editedBioHeading" class="form-label">Bio</label>
-                    <textarea
-                      class="form-control"
-                      id="editedBioHeading"
-                      name="edited_bio_heading"
-                      rows="4"
-                      required
-                    >{{ heading }}</textarea>
+                    <textarea class="form-control" id="editedBioHeading" name="edited_bio_heading" rows="4"
+                      required>{{ heading }}</textarea>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -484,7 +542,7 @@
         </div>
 
         <hr class="section-divider">
-        
+
         <!-- Manage Bio Card -->
         <div class="card">
           <div class="card-header">
@@ -500,7 +558,8 @@
               <i class="bi bi-info-circle"></i> No bio added yet. Click "Edit Bio" to add one.
             </div>
             {% endif %}
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editBioModal" data-bio="{{ bio|e }}">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editBioModal"
+              data-bio="{{ bio|e }}">
               <i class="bi bi-pencil-square"></i> {{ 'Edit Bio' if bio else 'Add Bio' }}
             </button>
           </div>
@@ -520,7 +579,8 @@
                 <div class="modal-body">
                   <div class="mb-3">
                     <label for="editedBio" class="form-label">Bio</label>
-                    <textarea class="form-control" id="editedBio" name="edited_bio" rows="4" required>{{ bio }}</textarea>
+                    <textarea class="form-control" id="editedBio" name="edited_bio" rows="4"
+                      required>{{ bio }}</textarea>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -535,7 +595,7 @@
         </div>
 
         <hr class="section-divider">
-        
+
         <div class="card">
           <div class="card-header d-flex justify-content-between align-items-center">
             <span><i class="bi bi-tags"></i> Manage Skills</span>
@@ -563,13 +623,19 @@
                     <td>{{ loop.index }}</td>
                     <td><strong>{{ skill.Skill }}</strong></td>
                     <td>{{ skill.Description }}</td>
-                    <td><span class="badge bg-info">{{ skill.category if 'category' in skill else 'Cloud & DevOps' }}</span></td>
+                    <td><span class="badge bg-info">{{ skill.category if 'category' in skill else 'Cloud & DevOps'
+                        }}</span></td>
                     <td><span class="badge bg-primary">{{ skill.percentage }}%</span></td>
                     <td class="actions-cell">
-                      <button class="btn btn-sm btn-primary me-1 edit-btn" data-index="{{ loop.index0 }}" data-title="{{ skill.Skill|e }}" data-desc="{{ skill.Description|e }}" data-pct="{{ skill.percentage }}" data-category="{{ skill.category if 'category' in skill else 'Cloud & DevOps' }}" data-bs-toggle="modal" data-bs-target="#editSkillModal">
+                      <button class="btn btn-sm btn-primary me-1 edit-btn" data-index="{{ loop.index0 }}"
+                        data-title="{{ skill.Skill|e }}" data-desc="{{ skill.Description|e }}"
+                        data-pct="{{ skill.percentage }}"
+                        data-category="{{ skill.category if 'category' in skill else 'Cloud & DevOps' }}"
+                        data-bs-toggle="modal" data-bs-target="#editSkillModal">
                         <i class="bi bi-pencil"></i> Edit
                       </button>
-                      <button class="btn btn-sm btn-danger delete-btn" data-index="{{ loop.index0 }}" data-bs-toggle="modal" data-bs-target="#deleteSkillModal">
+                      <button class="btn btn-sm btn-danger delete-btn" data-index="{{ loop.index0 }}"
+                        data-bs-toggle="modal" data-bs-target="#deleteSkillModal">
                         <i class="bi bi-trash"></i> Delete
                       </button>
                     </td>
@@ -588,8 +654,7 @@
         </div>
 
         <!-- ───── Add Skill Modal ───── -->
-        <div
-          class="modal fade" id="addSkillModal" tabindex="-1" aria-hidden="true">
+        <div class="modal fade" id="addSkillModal" tabindex="-1" aria-hidden="true">
           <div class="modal-dialog">
             <form method="post" action="{{ url_for('admin_about') }}">
               <div class="modal-content">
@@ -606,11 +671,13 @@
                   </div>
                   <div class="mb-3">
                     <label for="newDescription" class="form-label">Description</label>
-                    <textarea class="form-control" id="newDescription" name="new_description" rows="3" required></textarea>
+                    <textarea class="form-control" id="newDescription" name="new_description" rows="3"
+                      required></textarea>
                   </div>
                   <div class="mb-3">
                     <label for="newPercentage" class="form-label">Percentage</label>
-                    <input type="number" class="form-control" id="newPercentage" name="new_percentage" min="0" max="100" required>
+                    <input type="number" class="form-control" id="newPercentage" name="new_percentage" min="0" max="100"
+                      required>
                   </div>
                   <div class="mb-3">
                     <label for="newCategory" class="form-label">Category</label>
@@ -651,11 +718,13 @@
                   </div>
                   <div class="mb-3">
                     <label for="editedDescription" class="form-label">Description</label>
-                    <textarea class="form-control" id="editedDescription" name="edited_description" rows="3" required></textarea>
+                    <textarea class="form-control" id="editedDescription" name="edited_description" rows="3"
+                      required></textarea>
                   </div>
                   <div class="mb-3">
                     <label for="editedPercentage" class="form-label">Percentage</label>
-                    <input type="number" class="form-control" id="editedPercentage" name="edited_percentage" min="0" max="100" required>
+                    <input type="number" class="form-control" id="editedPercentage" name="edited_percentage" min="0"
+                      max="100" required>
                   </div>
                   <div class="mb-3">
                     <label for="editedCategory" class="form-label">Category</label>
@@ -704,7 +773,7 @@
         </div>
 
         <hr class="section-divider">
-        
+
         <!-- Resume Upload -->
         <div class="card">
           <div class="card-header">
@@ -713,8 +782,10 @@
           <div class="card-body">
             {% if current_resume %}
             <div class="mb-4 p-3 bg-light rounded">
-              <p class="mb-2"><strong><i class="bi bi-file-earmark-pdf"></i> Current Resume:</strong> <span class="text-primary">{{ current_resume }}</span></p>
-              <p class="mb-0 text-muted small"><i class="bi bi-info-circle"></i> File Type: <span class="badge bg-secondary">{{ resume_type }}</span></p>
+              <p class="mb-2"><strong><i class="bi bi-file-earmark-pdf"></i> Current Resume:</strong> <span
+                  class="text-primary">{{ current_resume }}</span></p>
+              <p class="mb-0 text-muted small"><i class="bi bi-info-circle"></i> File Type: <span
+                  class="badge bg-secondary">{{ resume_type }}</span></p>
             </div>
             {% else %}
             <div class="alert alert-info mb-4">
@@ -741,11 +812,13 @@
                 <div class="modal-body">
                   <div class="mb-3">
                     <label for="resumeFile" class="form-label">Select Resume File</label>
-                    <input type="file" class="form-control" id="resumeFile" name="resume_file" accept=".pdf,.txt" required>
+                    <input type="file" class="form-control" id="resumeFile" name="resume_file" accept=".pdf,.txt"
+                      required>
                     <div class="form-text">Accepted formats: PDF (.pdf) or Text (.txt)</div>
                   </div>
                   <div class="alert alert-info">
-                    <small><i class="bi bi-info-circle"></i> The uploaded file will replace the existing resume if one exists.</small>
+                    <small><i class="bi bi-info-circle"></i> The uploaded file will replace the existing resume if one
+                      exists.</small>
                   </div>
                 </div>
                 <div class="modal-footer">
@@ -765,81 +838,74 @@
   </div>
 
   <!-- Bootstrap JS Bundle (with Popper) -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- Pre-fill the modal textarea on open -->
   <!-- Edit Bio Heading Modal -->
-<script>
-  const editBioHeadingModal = document.getElementById('editBioHeadingModal');
-  if (editBioHeadingModal) {
-    editBioHeadingModal.addEventListener('show.bs.modal', (event) => {
-      const button = event.relatedTarget;
-      const heading = button.getAttribute('data-heading') || '';
-      editBioHeadingModal.querySelector('#editedBioHeading').value = heading;
-    });
-  }
-</script>
+  <script>
+    const editBioHeadingModal = document.getElementById('editBioHeadingModal');
+    if (editBioHeadingModal) {
+      editBioHeadingModal.addEventListener('show.bs.modal', (event) => {
+        const button = event.relatedTarget;
+        const heading = button.getAttribute('data-heading') || '';
+        editBioHeadingModal.querySelector('#editedBioHeading').value = heading;
+      });
+    }
+  </script>
 
-<!-- Bio Modal Prefill -->
-<script>
-  const editBioModal = document.getElementById('editBioModal');
-  if (editBioModal) {
-    editBioModal.addEventListener('show.bs.modal', event => {
-      const btn = event.relatedTarget;
-      const bio = btn.getAttribute('data-bio') || '';
-      editBioModal.querySelector('#editedBio').value = bio;
-    });
-  }
+  <!-- Bio Modal Prefill -->
+  <script>
+    const editBioModal = document.getElementById('editBioModal');
+    if (editBioModal) {
+      editBioModal.addEventListener('show.bs.modal', event => {
+        const btn = event.relatedTarget;
+        const bio = btn.getAttribute('data-bio') || '';
+        editBioModal.querySelector('#editedBio').value = bio;
+      });
+    }
 
-  // Edit Skill Prefill
-  const editSkillModal = document.getElementById('editSkillModal');
-  if (editSkillModal) {
-    editSkillModal.addEventListener('show.bs.modal', event => {
-      const btn = event.relatedTarget;
-      document.getElementById('editSkillIndex').value = btn.dataset.index;
-      document.getElementById('editedTitle').value = btn.dataset.title;
-      document.getElementById('editedDescription').value = btn.dataset.desc;
-      document.getElementById('editedPercentage').value = btn.dataset.pct;
-      document.getElementById('editedCategory').value = btn.dataset.category || 'Cloud & DevOps';
-    });
-  }
+    // Edit Skill Prefill
+    const editSkillModal = document.getElementById('editSkillModal');
+    if (editSkillModal) {
+      editSkillModal.addEventListener('show.bs.modal', event => {
+        const btn = event.relatedTarget;
+        document.getElementById('editSkillIndex').value = btn.dataset.index;
+        document.getElementById('editedTitle').value = btn.dataset.title;
+        document.getElementById('editedDescription').value = btn.dataset.desc;
+        document.getElementById('editedPercentage').value = btn.dataset.pct;
+        document.getElementById('editedCategory').value = btn.dataset.category || 'Cloud & DevOps';
+      });
+    }
 
-  // Delete Skill Prefill
-  const deleteSkillModal = document.getElementById('deleteSkillModal');
-  if (deleteSkillModal) {
-    deleteSkillModal.addEventListener('show.bs.modal', event => {
-      document.getElementById('deleteSkillIndex').value = event.relatedTarget.dataset.index;
-    });
-  }
-</script>
+    // Delete Skill Prefill
+    const deleteSkillModal = document.getElementById('deleteSkillModal');
+    if (deleteSkillModal) {
+      deleteSkillModal.addEventListener('show.bs.modal', event => {
+        document.getElementById('deleteSkillIndex').value = event.relatedTarget.dataset.index;
+      });
+    }
+  </script>
 
-<!-- Mobile Sidebar Toggle -->
-<script>
-  const menuBtn = document.querySelector(".mobile-menu-btn");
-  const sidebar = document.getElementById("sidebarMenu");
+  <!-- Mobile Sidebar Toggle -->
+  <script>
+    const menuBtn = document.querySelector(".mobile-menu-btn");
+    const sidebar = document.getElementById("sidebarMenu");
 
-  if (menuBtn && sidebar) {
-    menuBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("show");
+    if (menuBtn && sidebar) {
+      menuBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("show");
 
-      // Toggle icon (inside <i> tag)
-      const icon = menuBtn.querySelector("i");
-      if (icon) {
-        icon.classList.toggle("bi-list");
-        icon.classList.toggle("bi-x");
-      }
-    });
-  }
-</script>
+        // Toggle icon (inside <i> tag)
+        const icon = menuBtn.querySelector("i");
+        if (icon) {
+          icon.classList.toggle("bi-list");
+          icon.classList.toggle("bi-x");
+        }
+      });
+    }
+  </script>
 
 
 </body>
+
 </html>
-
-
-
-
-
-

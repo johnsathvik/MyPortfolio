@@ -871,7 +871,7 @@ def admin_contact():
 
 
 
-@app.route('/logout')
+@app.route('/admin-logout')
 def admin_logout():
     # Clear session data
     session.clear()
