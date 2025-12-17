@@ -156,7 +156,7 @@ def admin_profile_image(filename):
     static_dir = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'profile')
     return send_from_directory(static_dir, filename)
 
-@app.route('/guest-login')
+@app.route('/admin-guest-login')
 def guest_login():
     """Handle Guest Login (Read-Only)"""
     session.clear() # Clear any existing session
