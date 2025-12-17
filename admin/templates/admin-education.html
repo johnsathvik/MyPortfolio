@@ -32,10 +32,14 @@
       transform: translateY(-2px);
     }
 
+    .sidebar-wrapper {
+      min-height: 100vh;
+      border-right: 2px solid #2c2c2c;
+    }
+
     .sidebar {
       height: 100vh;
       background: #232323;
-      border-right: 2px solid #2c2c2c;
       padding-top: 20px;
       box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
     }
@@ -354,71 +358,83 @@
   <div class="container-fluid">
     <div class="row">
 
-      <!-- Sidebar -->
-      <div class="col-12 d-md-none">
-        <button class="btn sidebar-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu"
-          aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <i class="bi bi-list"></i> Menu
+      <!-- Mobile Header & Toggle -->
+      <div
+        class="d-md-none p-3 bg-dark border-bottom border-secondary d-flex justify-content-between align-items-center sticky-top mb-3">
+        <h5 class="mb-0 text-white"><i class="bi bi-shield-check me-2"></i>Admin</h5>
+        <button class="btn btn-outline-light border-0" type="button" data-bs-toggle="offcanvas"
+          data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+          <i class="bi bi-list fs-2"></i>
         </button>
       </div>
-      <nav id="sidebarMenu" class="col-12 col-md-2 sidebar collapse d-md-block">
-        <div class="position-sticky">
-          <div class="text-center mb-4">
-            <h4 class="highlight mb-0">
-              <i class="bi bi-shield-check"></i> Admin Panel
-            </h4>
-            <small class="text-muted">Dashboard</small>
-            {% if session.is_guest %}
-            <div class="mt-2">
-              <span class="badge bg-warning text-dark"><i class="bi bi-eye"></i> Guest Mode</span>
-            </div>
-            {% endif %}
+
+      <!-- Sidebar -->
+      <div class="col-md-2 p-0 bg-dark sidebar-wrapper">
+        <div class="offcanvas-md offcanvas-start bg-dark text-white h-100" tabindex="-1" id="sidebarMenu"
+          aria-labelledby="sidebarMenuLabel">
+          <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title" id="sidebarMenuLabel"><i class="bi bi-shield-check me-2"></i>Menu</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+              data-bs-target="#sidebarMenu" aria-label="Close"></button>
           </div>
-          <hr>
-          <ul class="nav flex-column">
-            <li class="nav-item">
-              <a class="nav-link" href="/admin-home">
-                <i class="bi bi-house-door"></i> Home
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin-about">
-                <i class="bi bi-person"></i> About
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin-experience">
-                <i class="bi bi-briefcase"></i> Experience
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" href="/admin-education">
-                <i class="bi bi-mortarboard"></i> Education
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin-certification">
-                <i class="bi bi-award"></i> Certification
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin-project">
-                <i class="bi bi-folder"></i> Project
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/admin-contact">
-                <i class="bi bi-envelope"></i> Contact
-              </a>
-            </li>
-            <li class="nav-item mt-4">
-              <a class="nav-link" href="{{ url_for('admin_logout') }}">
-                <i class="bi bi-box-arrow-right"></i> Logout
-              </a>
-            </li>
-          </ul>
+          <div class="offcanvas-body d-flex flex-column p-3 pt-md-4">
+            <div class="text-center mb-4">
+              <h4 class="highlight mb-0 d-none d-md-block">
+                <i class="bi bi-shield-check"></i> Admin Panel
+              </h4>
+              <small class="text-muted d-none d-md-block">Dashboard</small>
+              {% if session.is_guest %}
+              <div class="mt-2">
+                <span class="badge bg-warning text-dark"><i class="bi bi-eye"></i> Guest Mode</span>
+              </div>
+              {% endif %}
+            </div>
+            <hr class="d-none d-md-block">
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a class="nav-link" href="/admin-home">
+                  <i class="bi bi-house-door"></i> Home
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin-about">
+                  <i class="bi bi-person"></i> About
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin-experience">
+                  <i class="bi bi-briefcase"></i> Experience
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/admin-education">
+                  <i class="bi bi-mortarboard"></i> Education
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin-certification">
+                  <i class="bi bi-award"></i> Certification
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin-project">
+                  <i class="bi bi-folder"></i> Project
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/admin-contact">
+                  <i class="bi bi-envelope"></i> Contact
+                </a>
+              </li>
+              <li class="nav-item mt-4">
+                <a class="nav-link" href="{{ url_for('admin_logout') }}">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-      </nav>
+      </div>
 
       <!-- Main Content -->
       <main class="col-12 col-md-10 py-4 px-md-4">
