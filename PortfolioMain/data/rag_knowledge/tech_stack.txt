@@ -1,0 +1,63 @@
+SECTION: TECHNOLOGY STACK
+
+Overview:
+This section represents John’s overall technical skill set and tools he has worked
+with across multiple projects, internships, and learning experiences. Not all
+technologies listed here were used in a single project.
+
+Programming Languages:
+- Python
+- JavaScript
+- C++
+- SQL
+
+
+Backend and Application Technologies:
+- Flask (WSGI-based backend framework)
+- Gunicorn (production WSGI server)
+- Nginx (reverse proxy and web server)
+- systemd (process management and auto-start services)
+- AWS Lambda (serverless compute)
+- OpenCV (CV2) for image processing
+- NumPy for numerical computation
+
+
+Databases:
+- Firebase Realtime Database
+- MySQL
+- AWS RDS (MySQL)
+- Oracle Database
+
+
+Data and Analytics Tools:
+- AWS Rekognition (image analysis)
+- Amazon Polly (text-to-speech)
+- OpenCV for computer vision tasks
+- NumPy for data processing
+- Python-based data visualization (basic)
+- Figma for UI/UX review and prototyping
+
+
+Cloud and DevOps:
+- AWS services including:
+  - EC2
+  - S3
+  - IAM
+  - RDS
+  - VPC
+  - Route 53
+  - Application Load Balancer (ALB)
+  - Auto Scaling
+  - SNS
+  - EventBridge
+  - AWS Certificate Manager (ACM)
+  - CloudWatch
+  - CloudFormation
+- GitHub and GitHub Actions for CI/CD automation
+- AWS CLI for infrastructure interaction
+- Let’s Encrypt / Certbot for SSL certificate management
+
+
+Scope Note:
+This technology stack reflects overall experience. For technologies used in a
+specific project, refer to the relevant project description.

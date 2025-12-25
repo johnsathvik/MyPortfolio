@@ -1,0 +1,19 @@
+SECTION: CERTIFICATIONS AND CONTINUOUS LEARNING
+
+Certifications:
+- AWS Solutions Architect – Associate (2025)
+- AWS Academy Cloud Architecting (2022)
+- AWS Academy Cloud Foundations (2022)
+- Microsoft Azure Fundamentals (AZ-900)
+- NASSCOM Data Analytics Fundamentals
+
+
+Continuous Learning Focus:
+John actively continues to strengthen his technical expertise through hands-on
+projects, coursework, and self-directed learning in the following areas:
+
+- AWS solutions architecture and cloud deployments
+- DevOps and CI/CD automation using GitHub Actions
+- Cloud security, cost optimization, and VPC networking
+- Flask-based backend web applications and production deployment
+- Data analytics and data-driven decision-making

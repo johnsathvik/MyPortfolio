@@ -19,6 +19,9 @@
     href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Ubuntu:wght@300;400;500;700&family=Nunito:wght@300;400;600;700;800&display=swap"
     rel="stylesheet">
 
+  <!-- Chat Widget CSS -->
+  <link href="{{ url_for('static', filename='assets/css/chat.css') }}" rel="stylesheet">
+
   <!-- Vendor CSS -->
   <link href="{{ url_for('static', filename='assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
@@ -953,6 +956,34 @@
   <script src="{{ url_for('static', filename='assets/vendor/imagesloaded/imagesloaded.pkgd.min.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/vendor/glightbox/js/glightbox.min.js') }}"></script>
   <script src="{{ url_for('static', filename='assets/vendor/swiper/swiper-bundle.min.js') }}"></script>
+
+  <!-- RAG Chat Bot Widget -->
+  <div id="chat-widget-btn" class="chat-widget-btn">
+    <i class="bi bi-chat-dots-fill"></i>
+  </div>
+
+  <div id="chat-window" class="chat-window">
+    <div class="chat-header">
+      <h3>Ask AI Assistant</h3>
+      <button id="chat-close-btn" class="close-btn"><i class="bi bi-x"></i></button>
+    </div>
+    <div id="chat-body" class="chat-body">
+      <div class="message bot">Hi there! I'm John's AI assistant. Ask me anything about his projects, skills, or
+        experience!</div>
+      <div id="typing-indicator" class="typing-indicator">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="chat-input" class="chat-input" placeholder="Type your message...">
+      <button id="chat-send-btn" class="send-btn"><i class="bi bi-send-fill"></i></button>
+    </div>
+  </div>
+
+  <!-- Chat Widget JS -->
+  <script src="{{ url_for('static', filename='assets/js/chat.js') }}"></script>
 
   <!-- Main JS File -->
   <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
