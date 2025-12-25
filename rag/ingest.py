@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 
-from .config import KNOWLEDGE_FILE, EMBED_MODEL
+from .config import KNOWLEDGE_DIR, EMBED_MODEL
 from .gemini_client import get_gemini_client
 from .store import get_chroma_client, reset_collection
 
@@ -9,7 +9,6 @@ from .store import get_chroma_client, reset_collection
 def chunk_text(text: str, chunk_size: int = 900, overlap: int = 150):
     """
     Split text into overlapping chunks.
-    This improves retrieval accuracy.
     """
     chunks = []
     start = 0
@@ -24,11 +23,13 @@ def chunk_text(text: str, chunk_size: int = 900, overlap: int = 150):
     return chunks
 
 
-def stable_chunk_id(text: str) -> str:
+def stable_chunk_id(text: str, source: str) -> str:
     """
-    Generate a stable ID so re-indexing does not duplicate chunks.
+    Generate stable chunk IDs using content + source filename.
+    Prevents duplication across re-indexing.
     """
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:24]
+    raw = f"{source}:{text}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
 
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
@@ -42,21 +43,21 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
         contents=texts,
     )
 
-    embeddings = response.embeddings
-    return [list(e.values) for e in embeddings]
+    return [list(e.values) for e in response.embeddings]
 
 
 def rebuild_knowledge():
     """
     Manual re-learning entry point.
-    Deletes old vectors and rebuilds from the text file.
+    Rebuilds the vector database from all .txt files.
     """
-    if not KNOWLEDGE_FILE.exists():
-        raise FileNotFoundError(f"Knowledge file not found: {KNOWLEDGE_FILE}")
+    if not KNOWLEDGE_DIR.exists():
+        raise FileNotFoundError(f"Knowledge directory not found: {KNOWLEDGE_DIR}")
 
-    raw_text = KNOWLEDGE_FILE.read_text(encoding="utf-8")
+    txt_files = sorted(KNOWLEDGE_DIR.glob("*.txt"))
 
-    chunks = chunk_text(raw_text)
+    if not txt_files:
+        raise RuntimeError("No .txt knowledge files found.")
 
     chroma = get_chroma_client()
     collection = reset_collection(chroma)
@@ -64,26 +65,43 @@ def rebuild_knowledge():
     batch_size = 32
     total_chunks = 0
 
-    for i in range(0, len(chunks), batch_size):
-        batch = chunks[i : i + batch_size]
-        embeddings = embed_texts(batch)
+    for file_path in txt_files:
+        raw_text = file_path.read_text(encoding="utf-8")
+        chunks = chunk_text(raw_text)
 
-        ids = [stable_chunk_id(text) for text in batch]
-        metadatas = [
-            {"source": str(KNOWLEDGE_FILE), "chunk_index": i + idx}
-            for idx in range(len(batch))
-        ]
+        source_name = file_path.name
+        section_name = file_path.stem  # about, experience, projects, etc.
 
-        collection.add(
-            ids=ids,
-            documents=batch,
-            embeddings=embeddings,
-            metadatas=metadatas,
-        )
+        for i in range(0, len(chunks), batch_size):
+            batch = chunks[i : i + batch_size]
 
-        total_chunks += len(batch)
+            embeddings = embed_texts(batch)
+
+            ids = [
+                stable_chunk_id(text, source_name)
+                for text in batch
+            ]
+
+            metadatas = [
+                {
+                    "source_file": source_name,
+                    "section": section_name,
+                }
+                for _ in batch
+            ]
+
+            collection.add(
+                ids=ids,
+                documents=batch,
+                embeddings=embeddings,
+                metadatas=metadatas,
+            )
+
+            total_chunks += len(batch)
 
     return {
         "status": "success",
+        "files_indexed": len(txt_files),
         "chunks_indexed": total_chunks,
     }
+    
