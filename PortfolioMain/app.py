@@ -1,5 +1,12 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
-import os, json
+import os, json, sys
+from pathlib import Path
+
+# Add project root to system path to allow importing 'rag' module
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+from rag.qa import answer_question
+
 import requests
 import smtplib
 from email.message import EmailMessage
@@ -299,6 +306,29 @@ def contact():
     #     print("⚠️ Email delivery failed or skipped; check Gmail SMTP configuration in app.py.")
     
     return "OK"
+
+
+# --- RAG Chat Route ---
+@app.route('/api/chat', methods=['POST'])
+def chat_api():
+    """
+    API endpoint for the RAG chatbot.
+    Expects JSON: { "message": "user question" }
+    Returns JSON: { "response": "answer" }
+    """
+    data = request.get_json()
+    if not data or 'message' not in data:
+        return jsonify({'error': 'Message field is required'}), 400
+
+    user_message = data['message']
+    
+    try:
+        # Get answer from RAG system
+        bot_response = answer_question(user_message)
+        return jsonify({'response': bot_response})
+    except Exception as e:
+        print(f"RAG Error: {e}")
+        return jsonify({'error': 'Internal server error processing request'}), 500
 
 
 # --- Resume Download Route ---
