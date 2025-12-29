@@ -1,6 +1,13 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
 import os, json, sys
-from pathlib import Path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'bedrock')))
+
+try:
+    from bedrock.rag import ask_portfolio
+except ImportError:
+    print("WARNING: Could not import bedrock.rag. Ensure 'bedrock' directory is in the parent folder.")
+    def ask_portfolio(q): return "Backend RAG module not found (Local Mode)."
 
 
 
@@ -343,6 +350,24 @@ def linkedin():
     if not linkedin_url.startswith('http'):
         linkedin_url = f'https://{linkedin_url}'
     return redirect(linkedin_url)
+
+# --- Chat Route ---
+@app.route('/chat_query', methods=['POST'])
+def chat_query():
+    data = request.get_json(silent=True)
+    if not data or 'question' not in data:
+        return jsonify({'answer': "Please provide a valid question in JSON format."}), 400
+    
+    question = str(data.get('question', '')).strip()
+    if not question:
+        return jsonify({'answer': "Please ask a valid question."}), 400
+
+    try:
+        answer = ask_portfolio(question)
+        return jsonify({'answer': answer})
+    except Exception as e:
+        print(f"Error in chat_query: {e}")
+        return jsonify({'answer': "Sorry, I'm having trouble connecting to my brain right now."}), 500
 
 # --- Run Flask App ---
 if __name__ == '__main__':

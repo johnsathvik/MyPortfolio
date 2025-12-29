@@ -940,9 +940,29 @@
   </footer>
 
 
-  <!-- Scroll Top -->
-  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i
-      class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Chat Widget -->
+  <div class="chat-widget-btn" id="chatWidgetBtn">
+    <i class="bi bi-chat-dots-fill" style="font-size: 24px;"></i>
+  </div>
+
+  <div class="chat-widget-window" id="chatWidgetWindow">
+    <div class="chat-header">
+      <span>AI Assistant</span>
+      <span class="close-btn" id="chatCloseBtn">&times;</span>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-message bot">
+        Hi! I’m John’s portfolio assistant. Ask me anything about his projects or skills!
+      </div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" id="chatInput" placeholder="Ask a question..." autocomplete="off">
+      <button id="chatSendBtn">
+        <i class="bi bi-send-fill"></i>
+      </button>
+    </div>
+  </div>
   <div id="preloader"></div>
 
   <!-- Vendor JS Files -->
@@ -960,6 +980,91 @@
 
 
   <!-- Chat Widget JS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const chatBtn = document.getElementById('chatWidgetBtn');
+      const chatWindow = document.getElementById('chatWidgetWindow');
+      const closeBtn = document.getElementById('chatCloseBtn');
+      const sendBtn = document.getElementById('chatSendBtn');
+      const chatInput = document.getElementById('chatInput');
+      const chatBody = document.getElementById('chatBody');
+
+      // Toggle Chat Window
+      chatBtn.addEventListener('click', () => {
+        chatWindow.classList.add('active');
+        chatBtn.style.opacity = '0';
+        setTimeout(() => chatBtn.style.display = 'none', 300);
+      });
+
+      closeBtn.addEventListener('click', () => {
+        chatWindow.classList.remove('active');
+        chatBtn.style.display = 'flex';
+        setTimeout(() => chatBtn.style.opacity = '1', 10);
+      });
+
+      // Send Message
+      function sendMessage() {
+        const question = chatInput.value.trim();
+        if (!question) return;
+
+        // Add User Message
+        addMessage(question, 'user');
+        chatInput.value = '';
+
+        // Show Loading
+        const loadingId = addMessage('Thinking...', 'bot');
+
+        // Send to Backend
+        fetch('/chat_query', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ question: question })
+        })
+          .then(response => response.json())
+          .then(data => {
+            // Remove loading message
+            const loadingMsg = document.getElementById(loadingId);
+            if (loadingMsg) loadingMsg.remove();
+
+            if (data.answer) {
+              addMessage(data.answer, 'bot');
+            } else {
+              addMessage("Sorry, something went wrong.", 'bot');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            const loadingMsg = document.getElementById(loadingId);
+            if (loadingMsg) loadingMsg.remove();
+            addMessage("Network error. Please try again.", 'bot');
+          });
+      }
+
+      sendBtn.addEventListener('click', sendMessage);
+      chatInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          e.stopPropagation();
+          sendMessage();
+        }
+      });
+
+      function addMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.classList.add('chat-message', sender);
+        msgDiv.innerText = text;
+
+        const id = 'msg-' + Date.now() + Math.random();
+        msgDiv.id = id;
+
+        chatBody.appendChild(msgDiv);
+        chatBody.scrollTop = chatBody.scrollHeight;
+        return id;
+      }
+    });
+  </script>
 
 
   <!-- Main JS File -->
