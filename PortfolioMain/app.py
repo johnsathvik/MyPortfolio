@@ -1,13 +1,13 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
 import os, json, sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'bedrock')))
 
-try:
-    from bedrock.rag import ask_portfolio
-except ImportError:
-    print("WARNING: Could not import bedrock.rag. Ensure 'bedrock' directory is in the parent folder.")
-    def ask_portfolio(q): return "Backend RAG module not found (Local Mode)."
+# Add parent directory to path to find 'bedrock' package
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from bedrock.rag import ask_portfolio
 
 
 

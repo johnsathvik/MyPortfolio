@@ -1,5 +1,5 @@
-from kb_retrieve import retrieve_context
-from claude_generate import generate_answer
+from .kb_retrieve import retrieve_context
+from .claude_generate import generate_answer
 
 def ask_portfolio(question: str) -> str:
     question = question.strip()
