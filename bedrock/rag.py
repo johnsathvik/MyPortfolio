@@ -10,8 +10,6 @@ def ask_portfolio(question: str) -> str:
 
     context = retrieve_context(question)
 
-    if not context:
-        return "That information is not documented in John’s portfolio."
-
-    return generate_answer(context, question)
+    # Pass context (even if empty) to the LLM so it can handle greetings/general queries
+    return generate_answer(context or "", question)
 
