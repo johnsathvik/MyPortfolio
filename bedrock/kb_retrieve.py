@@ -9,19 +9,30 @@ if not KB_ID:
 
 client = boto3.client("bedrock-agent-runtime", region_name=REGION)
 
+print(f"DEBUG: Initialized Bedrock Client. Region: {REGION}, KB_ID: {KB_ID}")
+
 def retrieve_context(question: str) -> str:
-    response = client.retrieve(
-        knowledgeBaseId=KB_ID,
-        retrievalQuery={"text": question},
-        retrievalConfiguration={
-            "vectorSearchConfiguration": {
-                "numberOfResults": 5
+    print(f"DEBUG: Retrieving context for query: '{question}'")
+    
+    try:
+        response = client.retrieve(
+            knowledgeBaseId=KB_ID,
+            retrievalQuery={"text": question},
+            retrievalConfiguration={
+                "vectorSearchConfiguration": {
+                    "numberOfResults": 5
+                }
             }
-        }
-    )
+        )
+    except Exception as e:
+        print(f"DEBUG: Retrieval Error: {e}")
+        raise e
 
     chunks = []
-    for item in response.get("retrievalResults", []):
+    results = response.get("retrievalResults", [])
+    print(f"DEBUG: Found {len(results)} chunks.")
+    
+    for item in results:
         text = item.get("content", {}).get("text")
         if text:
             chunks.append(text.strip())
