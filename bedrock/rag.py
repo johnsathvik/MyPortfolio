@@ -8,6 +8,7 @@ def ask_portfolio(question: str) -> str:
     if len(question) < 2:
         return "Please ask a complete question."
 
+    print(f"DEBUG: rag.py calling retrieve_context for: '{question}'", flush=True)
     context = retrieve_context(question)
 
     # Pass context (even if empty) to the LLM so it can handle greetings/general queries

@@ -362,6 +362,8 @@ def chat_query():
     if not question:
         return jsonify({'answer': "Please ask a valid question."}), 400
 
+    print(f"DEBUG: app.py received question: '{question}'", flush=True)
+
     try:
         answer = ask_portfolio(question)
         return jsonify({'answer': answer})
