@@ -364,6 +364,9 @@ def chat_query():
 
     print(f"DEBUG: app.py received question: '{question}'", flush=True)
 
+    # TEMPORARY DEBUG: Force response to check if code is updating
+    return jsonify({'answer': "DEBUG: The server code IS updating. Logs are just silent."})
+
     try:
         answer = ask_portfolio(question)
         return jsonify({'answer': answer})
