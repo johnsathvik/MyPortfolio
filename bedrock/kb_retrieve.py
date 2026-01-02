@@ -9,10 +9,10 @@ if not KB_ID:
 
 client = boto3.client("bedrock-agent-runtime", region_name=REGION)
 
-print(f"DEBUG: Initialized Bedrock Client. Region: {REGION}, KB_ID: {KB_ID}")
+print(f"DEBUG: Initialized Bedrock Client. Region: {REGION}, KB_ID: {KB_ID}", flush=True)
 
 def retrieve_context(question: str) -> str:
-    print(f"DEBUG: Retrieving context for query: '{question}'")
+    print(f"DEBUG: Retrieving context for query: '{question}'", flush=True)
     
     try:
         response = client.retrieve(
@@ -30,7 +30,7 @@ def retrieve_context(question: str) -> str:
 
     chunks = []
     results = response.get("retrievalResults", [])
-    print(f"DEBUG: Found {len(results)} chunks.")
+    print(f"DEBUG: Found {len(results)} chunks.", flush=True)
     
     for item in results:
         text = item.get("content", {}).get("text")
