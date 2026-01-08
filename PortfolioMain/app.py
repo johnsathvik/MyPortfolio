@@ -209,6 +209,50 @@ def home():
         projects_data = fb.get('/projects', None) or {}
         projects = projects_data if isinstance(projects_data, dict) else {}
 
+        # Process experience descriptions to split bullet points
+        def process_description(desc):
+            """Convert description string with bullet points into a list of items"""
+            if not desc:
+                return []
+            
+            # If already a list, return as-is
+            if isinstance(desc, list):
+                return desc
+            
+            # If it's a string, split by newlines and bullet characters
+            if isinstance(desc, str):
+                # Split by newlines first
+                lines = desc.split('\n')
+                bullets = []
+                
+                for line in lines:
+                    # Strip whitespace
+                    line = line.strip()
+                    
+                    # Skip empty lines
+                    if not line:
+                        continue
+                    
+                    # Remove common bullet characters from the start
+                    for bullet_char in ['• ', '- ', '* ', '· ', '→ ', '> ']:
+                        if line.startswith(bullet_char):
+                            line = line[len(bullet_char):].strip()
+                            break
+                    
+                    # Add non-empty lines to bullets list
+                    if line:
+                        bullets.append(line)
+                
+                return bullets if bullets else [desc]
+            
+            return [str(desc)]
+        
+        # Apply processing to all experience descriptions
+        if isinstance(experience_data, dict):
+            for exp_key, exp in experience_data.items():
+                if isinstance(exp, dict) and 'description' in exp:
+                    exp['description'] = process_description(exp['description'])
+
         # Prepare data dictionary for template
         data = {
             'name': 'John Sathvik Madipalli',  # Can be moved to Firebase later
