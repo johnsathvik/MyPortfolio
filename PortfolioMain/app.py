@@ -1,5 +1,12 @@
+import os
+
+# 1. Load .env for local development only
 from dotenv import load_dotenv
 load_dotenv()
+
+# 2. Load AWS SSM secrets (overrides .env in prod)
+from config.secrets import load_secrets
+load_secrets()
 
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
 import os, json, sys

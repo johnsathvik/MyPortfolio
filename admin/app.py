@@ -7,6 +7,17 @@ from functools import wraps
 from flask import make_response
 from werkzeug.utils import secure_filename
 
+import os
+
+# 1. Load .env for local development only
+from dotenv import load_dotenv
+load_dotenv()
+
+# 2. Load AWS SSM secrets (overrides .env in prod)
+from config.secrets import load_secrets
+load_secrets()
+
+
 app = Flask(__name__)
 app.secret_key = '*John3211#*John3211#*John3211#*John3211#*John3211#'
 
