@@ -183,7 +183,8 @@
               <div class="hero-visual">
                 <div class="profile-container">
                   <div class="profile-background"></div>
-                  <img src="{{ url_for('static', filename='assets/img/profile/main.jpg') }}"
+                  <img
+                    src="{{ url_for('static', filename='assets/img/profile/confident_modern_graystudio-headshot.jpg') }}"
                     alt="JOHN SATHVIK MADIPALLI" class="profile-image">
                 </div>
               </div>
@@ -581,6 +582,9 @@
                 <h4>{{ exp.get('role', 'Position') }}</h4>
                 <h5>{{ exp.get('duration', 'Period') }}</h5>
                 <p class="company"><i class="bi bi-building"></i> {{ exp.get('company', 'Company') }}</p>
+                {% if exp.get('location') %}
+                <p class="company"><i class="bi bi-geo-alt"></i> {{ exp.location }}</p>
+                {% endif %}
                 <ul>
                   {% if exp.get('description') %}
                   {% if exp.description is string %}
@@ -640,6 +644,9 @@
                 <h4>{{ edu.get('designation', 'Degree') }}</h4>
                 <h5>{{ edu.get('period', 'Period') }}</h5>
                 <p class="company"><i class="bi bi-building"></i> {{ edu.get('institution', 'Institution') }}</p>
+                {% if edu.get('location') %}
+                <p class="company"><i class="bi bi-geo-alt"></i> {{ edu.location }}</p>
+                {% endif %}
                 {% if edu.get('description') %}
                 <p>{{ edu.description }}</p>
                 {% endif %}

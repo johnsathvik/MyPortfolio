@@ -163,6 +163,10 @@ def guest_login():
     session['admin_logged_in'] = True
     session['is_guest'] = True
     session['admin_username'] = "Guest User"
+    # Debug logging
+    print(f"DEBUG - Guest login successful")
+    print(f"DEBUG - Session contents: {dict(session)}")
+    print(f"DEBUG - is_guest value: {session.get('is_guest')}")
     flash("Logged in as Guest (Read-Only Mode)", "info")
     return redirect(url_for('admin_intro'))
 
@@ -179,9 +183,14 @@ def admin_login():
 
             if username == stored_username and password == stored_password:
                 session['admin_logged_in'] = True
+                session['is_guest'] = False  # Explicitly clear guest mode flag
                 # Store credentials in session for strict validation
                 session['admin_username'] = stored_username
                 session['admin_password'] = stored_password
+                # Debug logging
+                print(f"DEBUG - Admin login successful for user: {stored_username}")
+                print(f"DEBUG - Session contents: {dict(session)}")
+                print(f"DEBUG - is_guest value: {session.get('is_guest')}")
                 return redirect(url_for('admin_intro'))
             else:
                 flash("Invalid username or password.")
@@ -237,6 +246,7 @@ def admin_intro():
                     fb.put(f'/landing/skills-list/{key}', 'skills', skills)
                 else:
                     fb.post('/landing/skills-list', {'skills': [new_skill]})
+                flash('Skill added successfully!', 'success')
         elif 'edited_skill' in form:
             idx = int(form['edit_index'])
             edited = form['edited_skill'].strip()
@@ -247,6 +257,7 @@ def admin_intro():
                 if 0 <= idx < len(skills):
                     skills[idx] = edited
                     fb.put(f'/landing/skills-list/{key}', 'skills', skills)
+                    flash('Skill updated successfully!', 'success')
         elif 'delete_index' in form:
             idx = int(form['delete_index'])
             raw = fb.get('/landing/skills-list', None) or {}
@@ -256,6 +267,7 @@ def admin_intro():
                 if 0 <= idx < len(skills):
                     skills.pop(idx)
                     fb.put(f'/landing/skills-list/{key}', 'skills', skills)
+                    flash('Skill deleted successfully!', 'success')
         elif 'edited_bio' in form:
             new_bio = form['edited_bio'].strip()
             if new_bio:
@@ -265,6 +277,7 @@ def admin_intro():
                     fb.put(f'/landing/bio/{bio_key}', 'bio', new_bio)
                 else:
                     fb.post('/landing/bio', {'bio': new_bio})
+                flash('Bio updated successfully!', 'success')
         return redirect(url_for('admin_intro'))
 
     raw = fb.get('/landing/skills-list', None) or {}
@@ -375,6 +388,7 @@ def admin_about():
                         'category': category
                     }]
                 })
+            flash('Skill added successfully!', 'success')
 
     elif request.method == 'POST':
         # GUEST GUARD
@@ -390,6 +404,7 @@ def admin_about():
                 fb.put(f'/about/heading/{key}', 'heading', new_heading)
             else:
                 fb.post('/about/heading', {'heading': new_heading})
+            flash('About heading updated successfully!', 'success')
 
         elif 'edited_bio' in request.form:
             new_bio = request.form['edited_bio'].strip()
@@ -399,6 +414,7 @@ def admin_about():
                 fb.put(f'/about/bio/{key}', 'bio', new_bio)
             else:
                 fb.post('/about/bio', {'bio': new_bio})
+            flash('About bio updated successfully!', 'success')
 
         elif 'delete_index' in request.form:
             idx = int(request.form['delete_index'])
@@ -409,6 +425,7 @@ def admin_about():
                 if 0 <= idx < len(skills):
                     skills.pop(idx)
                     fb.put(f'/about/skills/{key}', 'skills', skills)
+                    flash('Skill deleted successfully!', 'success')
 
         elif 'edited_skill' in request.form and 'edited_description' in request.form and 'edited_percentage' in request.form:
             idx   = int(request.form['edit_index'])
@@ -426,6 +443,7 @@ def admin_about():
                     skills[idx]['percentage']  = pct
                     skills[idx]['category']    = category
                     fb.put(f'/about/skills/{key}', 'skills', skills)
+                    flash('Skill updated successfully!', 'success')
 
         return redirect(url_for('admin_about'))
 
@@ -546,23 +564,28 @@ def admin_experience():
                 "company": request.form['company'],
                 "role": request.form['role'],
                 "duration": request.form['duration'],
+                "location": request.form.get('location', ''),
                 "description": request.form['description']
             }
             fb.put('/experience', key, updated)
+            flash('Experience updated successfully!', 'success')
             return redirect(url_for('admin_experience'))
         # Handle Add new experience
         else:
             company = request.form.get("company")
             role = request.form.get("role")
             duration = request.form.get("duration")
+            location = request.form.get("location", "")
             description = request.form.get("description")
             if company and role and duration and description:
                 fb.post('/experience', {
                     "company": company,
                     "role": role,
                     "duration": duration,
+                    "location": location,
                     "description": description
                 })
+                flash('Experience added successfully!', 'success')
             return redirect(url_for('admin_experience'))
 
     # Get Professional Summary
@@ -618,6 +641,7 @@ def delete_experience():
     key = request.form.get('key')
     if key:
         fb.delete('/experience', key)
+        flash('Experience deleted successfully!', 'success')
     return redirect(url_for('admin_experience'))
 
 
@@ -648,9 +672,11 @@ def admin_education():
                 "institution": request.form['institution'],
                 "designation": request.form['designation'],
                 "period": request.form['period'],
+                "location": request.form.get('location', ''),
                 "description": request.form['description']
             }
             fb.put('/resume/education', key, updated)
+            flash('Education updated successfully!', 'success')
             return redirect(url_for('admin_education'))
 
         # Add new entry
@@ -658,6 +684,7 @@ def admin_education():
             institution = request.form.get("institution")
             designation = request.form.get("designation")
             period = request.form.get("period")
+            location = request.form.get("location", "")
             description = request.form.get("description")
 
             if institution and designation and period and description:
@@ -665,8 +692,10 @@ def admin_education():
                     "institution": institution,
                     "designation": designation,
                     "period": period,
+                    "location": location,
                     "description": description
                 })
+                flash('Education added successfully!', 'success')
 
             return redirect(url_for('admin_education'))
 
@@ -691,6 +720,7 @@ def delete_education():
     key = request.form.get('key')
     if key:
         fb.delete('/resume/education', key)
+        flash('Education deleted successfully!', 'success')
     return redirect(url_for('admin_education'))
 
 

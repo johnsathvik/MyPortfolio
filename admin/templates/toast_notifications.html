@@ -1,0 +1,134 @@
+<!-- Toast Notification Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="toast show align-items-center text-white border-0 mb-2 toast-{{ category }}" role="alert"
+        aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="d-flex">
+            <div class="toast-body d-flex align-items-center">
+                <i
+                    class="bi bi-{{ 'check-circle-fill' if category == 'success' else 'exclamation-triangle-fill' if category == 'warning' else 'info-circle-fill' if category == 'info' else 'x-circle-fill' }} me-2 fs-5"></i>
+                <span>{{ message }}</span>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                aria-label="Close"></button>
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<style>
+    /* Toast Notification Styles */
+    .toast-container {
+        z-index: 9999 !important;
+    }
+
+    .toast {
+        min-width: 350px;
+        max-width: 500px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        animation: slideInRight 0.4s ease-out;
+        backdrop-filter: blur(10px);
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .toast.hiding {
+        animation: slideOutRight 0.3s ease-in;
+    }
+
+    @keyframes slideOutRight {
+        from {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+    }
+
+    .toast-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border-left: 4px solid #ffffff;
+    }
+
+    .toast-error,
+    .toast-danger {
+        background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        border-left: 4px solid #ffffff;
+    }
+
+    .toast-warning {
+        background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        border-left: 4px solid #ffffff;
+        color: #000 !important;
+    }
+
+    .toast-warning .toast-body,
+    .toast-warning .btn-close {
+        color: #000 !important;
+    }
+
+    .toast-warning .btn-close {
+        filter: invert(1);
+    }
+
+    .toast-info {
+        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+        border-left: 4px solid #ffffff;
+    }
+
+    .toast-body {
+        padding: 16px 12px;
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.3px;
+    }
+
+    .toast .btn-close {
+        padding: 8px;
+        opacity: 0.8;
+    }
+
+    .toast .btn-close:hover {
+        opacity: 1;
+    }
+
+    @media (max-width: 576px) {
+        .toast {
+            min-width: calc(100vw - 2rem);
+            max-width: calc(100vw - 2rem);
+        }
+    }
+</style>
+
+<script>
+    // Auto-hide toasts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function () {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+        var toastList = toastElList.map(function (toastEl) {
+            var toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 5000
+            });
+            toast.show();
+            return toast;
+        });
+    });
+</script>

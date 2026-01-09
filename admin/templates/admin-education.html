@@ -455,21 +455,13 @@
           </div>
         </div>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show"
-          role="alert">
-          <i class="bi bi-{{ 'exclamation-triangle' if category == 'error' else 'check-circle' }}"></i> {{ message }}
-          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
+
+        <!-- Toast Notifications -->
+        {% include 'toast_notifications.html' %}
+
 
         <!-- Add Education Form -->
-        <div class="card">
+        <div class="card" id="education-form-card">
           <div class="card-header">
             <i class="bi bi-plus-circle"></i> Add / Edit Education
           </div>
@@ -491,6 +483,11 @@
               <div class="mb-3">
                 <label class="form-label"><i class="bi bi-calendar-range"></i> Period</label>
                 <input name="period" class="form-control" required value="{{ edit_data.period if edit_data else '' }}">
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><i class="bi bi-geo-alt"></i> Location</label>
+                <input name="location" class="form-control" placeholder="e.g., St. Louis, Missouri"
+                  value="{{ edit_data.location if edit_data else '' }}">
               </div>
               <div class="mb-3">
                 <label class="form-label"><i class="bi bi-card-text"></i> Description</label>
@@ -520,6 +517,7 @@
                     <th>Institution</th>
                     <th>Degree</th>
                     <th>Period</th>
+                    <th>Location</th>
                     <th>Description</th>
                     <th style="width:180px">Actions</th>
                   </tr>
@@ -530,6 +528,7 @@
                     <td><strong>{{ edu.institution }}</strong></td>
                     <td>{{ edu.designation }}</td>
                     <td>{{ edu.period }}</td>
+                    <td>{{ edu.location if edu.location else '-' }}</td>
                     <td>{{ edu.description }}</td>
                     <td class="actions-cell">
                       <form method="POST" action="/delete-education" style="display:inline;">
@@ -565,6 +564,30 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Auto-scroll to form after submission
+    document.addEventListener('DOMContentLoaded', function () {
+      // Check if we should scroll to form
+      if (sessionStorage.getItem('scrollToForm') === 'true') {
+        sessionStorage.removeItem('scrollToForm');
+        const formCard = document.getElementById('education-form-card');
+        if (formCard) {
+          setTimeout(function () {
+            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+
+      // Set flag when form is submitted
+      const forms = document.querySelectorAll('form[method="POST"]');
+      forms.forEach(function (form) {
+        form.addEventListener('submit', function () {
+          sessionStorage.setItem('scrollToForm', 'true');
+        });
+      });
+    });
+  </script>
 
 </body>
 
