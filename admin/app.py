@@ -2,12 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import requests
 import json
 import os
+import sys
 import uuid
 from functools import wraps
 from flask import make_response
 from werkzeug.utils import secure_filename
 
-import os
+# Add parent directory to path to find 'config' package
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # 1. Load .env for local development only
 from dotenv import load_dotenv

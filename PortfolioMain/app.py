@@ -1,4 +1,8 @@
 import os
+import sys
+
+# Add parent directory to path to find 'config' and 'bedrock' packages
+sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # 1. Load .env for local development only
 from dotenv import load_dotenv
@@ -9,10 +13,7 @@ from config.secrets import load_secrets
 load_secrets()
 
 from flask import Flask, render_template, request, send_file, redirect, url_for, jsonify
-import os, json, sys
-
-# Add parent directory to path to find 'bedrock' package
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import json
 
 from bedrock.rag import ask_portfolio
 
