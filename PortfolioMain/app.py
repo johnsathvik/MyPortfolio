@@ -1,8 +1,14 @@
 import os
 import sys
 
-# Add parent directory to path to find 'config' and 'bedrock' packages
-sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Handle both local run (from PortfolioMain/) and gunicorn run (from root directory MyPortfolio/)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(current_dir) == 'PortfolioMain':
+    # We are in PortfolioMain/ folder, add parent to find config and bedrock
+    sys.path.insert(1, os.path.abspath(os.path.join(current_dir, '..')))
+else:
+    # We might be run from root as a module, add current dir
+    sys.path.insert(1, current_dir)
 
 # 1. Load .env for local development only
 from dotenv import load_dotenv

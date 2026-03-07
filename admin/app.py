@@ -8,8 +8,14 @@ from functools import wraps
 from flask import make_response
 from werkzeug.utils import secure_filename
 
-# Add parent directory to path to find 'config' package
-sys.path.insert(1, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Handle both local run (from admin/) and gunicorn run (from root directory MyPortfolio/)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if os.path.basename(current_dir) == 'admin':
+    # We are in admin/ folder, add parent to find config
+    sys.path.insert(1, os.path.abspath(os.path.join(current_dir, '..')))
+else:
+    # We might be run from root as a module, add current dir
+    sys.path.insert(1, current_dir)
 
 # 1. Load .env for local development only
 from dotenv import load_dotenv
