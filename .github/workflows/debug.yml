@@ -1,4 +1,4 @@
-name: Debug EC2
+name: Debug Nginx
 on:
   push:
     branches: [ "debug-ec2" ]
@@ -18,17 +18,16 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      - name: Fetch EC2 logs
+      - name: Fetch Nginx logs
         run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo journalctl -u portfolio-main -n 200 --no-pager' > main_service.log
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo journalctl -u portfolio-admin -n 200 --no-pager' > admin_service.log
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo systemctl status portfolio-main' >> main_service.log || true
-          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo systemctl status portfolio-admin' >> admin_service.log || true
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo tail -n 200 /var/log/nginx/error.log' > nginx_error.log || true
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo cat /etc/nginx/sites-available/portfolio' > nginx_config.log || true
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} 'sudo netstat -tulpn | grep LISTEN' > netstat.log || true
 
       - name: Commit and push logs
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add -f main_service.log admin_service.log
-          git commit -m "Add debug logs" || echo "No changes to commit"
-          git push
+          git add -f nginx_error.log nginx_config.log netstat.log
+          git commit -m "Add nginx debug logs" || echo "No changes to commit"
+          git push -u origin debug-ec2
