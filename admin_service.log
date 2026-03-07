@@ -200,11 +200,11 @@ Mar 07 17:39:52 ip-192-168-0-24 gunicorn[244811]: [2026-03-07 17:39:52 +0000] [2
 Mar 07 17:39:52 ip-192-168-0-24 gunicorn[244813]: [2026-03-07 17:39:52 +0000] [244813] [INFO] Booting worker with pid: 244813
 ● portfolio-admin.service - Gunicorn service for Portfolio Admin app
      Loaded: loaded (/etc/systemd/system/portfolio-admin.service; enabled; preset: enabled)
-     Active: active (running) since Sat 2026-03-07 17:39:52 UTC; 19min ago
+     Active: active (running) since Sat 2026-03-07 17:39:52 UTC; 22min ago
    Main PID: 244809 (gunicorn)
       Tasks: 3 (limit: 1017)
      Memory: 98.2M (peak: 98.7M)
-        CPU: 1.503s
+        CPU: 1.525s
      CGroup: /system.slice/portfolio-admin.service
              ├─244809 /home/ubuntu/MyPortfolio/.venv/bin/python3 /home/ubuntu/MyPortfolio/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8002 app:app
              ├─244811 /home/ubuntu/MyPortfolio/.venv/bin/python3 /home/ubuntu/MyPortfolio/.venv/bin/gunicorn --workers 2 --bind 127.0.0.1:8002 app:app
