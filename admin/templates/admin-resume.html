@@ -687,55 +687,13 @@
 
         <hr class="section-divider">
 
-        <!-- Add Experience Form -->
-        <div class="card" id="experience-form-card">
-          <div class="card-header">
-            <i class="bi bi-plus-circle"></i> Add / Edit Experience
-          </div>
-          <div class="card-body">
-            <form method="POST">
-              {% if edit_data and edit_data_type == "experience" %}
-              <input type="hidden" name="update_key" value="{{ edit_data.key }}">
-              {% endif %}
-
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-building"></i> Institution/Company</label>
-                <input name="company" class="form-control" required
-                  value="{{ edit_data.company if edit_data and edit_data_type == 'experience' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-person-badge"></i> Role</label>
-                <input name="role" class="form-control" required value="{{ edit_data.role if edit_data and edit_data_type == 'experience' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-calendar-range"></i> Period</label>
-                <input name="duration" class="form-control" required
-                  value="{{ edit_data.duration if edit_data and edit_data_type == 'experience' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-geo-alt"></i> Location</label>
-                <input name="location" class="form-control" placeholder="e.g., Hyderabad, India"
-                  value="{{ edit_data.location if edit_data and edit_data_type == 'experience' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-card-text"></i> Description</label>
-                <textarea name="description" class="form-control" rows="3"
-                  required>{{ edit_data.description if edit_data and edit_data_type == 'experience' else '' }}</textarea>
-              </div>
-
-              <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check-circle"></i> {{ 'Update Experience' if edit_data and edit_data_type == 'experience' else 'Add Experience' }}
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <hr class="section-divider">
-
         <!-- Experience Table -->
         <div class="card">
-          <div class="card-header">
-            <i class="bi bi-list-ul"></i> Experience List
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-briefcase"></i> Manage Experience</span>
+            <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addExperienceModal">
+              <i class="bi bi-plus-circle"></i> Add New Experience
+            </button>
           </div>
           <div class="card-body">
             {% if experiences %}
@@ -760,12 +718,16 @@
                     <td>{{ exp.location if exp.location else '-' }}</td>
                     <td>{{ exp.description }}</td>
                     <td class="actions-cell">
-                      <form method="POST" style="display:inline;">
-                        <input type="hidden" name="edit_key" value="{{ key }}">
-                        <button class="btn btn-sm btn-primary me-1" type="submit">
-                          <i class="bi bi-pencil"></i> Edit
-                        </button>
-                      </form>
+                      <button class="btn btn-sm btn-primary me-1 edit-exp-btn" 
+                        data-key="{{ key }}" 
+                        data-company="{{ exp.company|e }}" 
+                        data-role="{{ exp.role|e }}" 
+                        data-duration="{{ exp.duration|e }}" 
+                        data-location="{{ exp.location|e if exp.location else '' }}" 
+                        data-description="{{ exp.description|e }}" 
+                        data-bs-toggle="modal" data-bs-target="#editExperienceModal">
+                        <i class="bi bi-pencil"></i> Edit
+                      </button>
 
                       <form method="POST" action="/delete-experience" style="display:inline;">
                         <input type="hidden" name="key" value="{{ key }}">
@@ -790,53 +752,13 @@
 
         <hr class="section-divider">
 
-        <!-- Add Education Form -->
-        <div class="card" id="education-form-card">
-          <div class="card-header">
-            <i class="bi bi-plus-circle"></i> Add / Edit Education
-          </div>
-          <div class="card-body">
-            <form method="POST">
-              {% if edit_data and edit_data_type == "education" %}
-              <input type="hidden" name="update_key" value="{{ edit_data.key }}">
-              {% endif %}
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-building"></i> Institution</label>
-                <input name="institution" class="form-control" required
-                  value="{{ edit_data.institution if edit_data and edit_data_type == 'education' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-award"></i> Degree / Designation</label>
-                <input name="designation" class="form-control" required
-                  value="{{ edit_data.designation if edit_data and edit_data_type == 'education' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-calendar-range"></i> Period</label>
-                <input name="period" class="form-control" required value="{{ edit_data.period if edit_data and edit_data_type == 'education' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-geo-alt"></i> Location</label>
-                <input name="location" class="form-control" placeholder="e.g., St. Louis, Missouri"
-                  value="{{ edit_data.location if edit_data and edit_data_type == 'education' else '' }}">
-              </div>
-              <div class="mb-3">
-                <label class="form-label"><i class="bi bi-card-text"></i> Description</label>
-                <textarea name="description" class="form-control" rows="3"
-                  required>{{ edit_data.description if edit_data and edit_data_type == 'education' else '' }}</textarea>
-              </div>
-              <button class="btn btn-primary" type="submit">
-                <i class="bi bi-check-circle"></i> {{ 'Update Education' if edit_data and edit_data_type == 'education' else 'Add Entry' }}
-              </button>
-            </form>
-          </div>
-        </div>
-
-        <hr class="section-divider">
-
         <!-- Education Table -->
         <div class="card">
-          <div class="card-header">
-            <i class="bi bi-list-ul"></i> Education List
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-mortarboard"></i> Manage Education</span>
+            <button type="button" class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#addEducationModal">
+              <i class="bi bi-plus-circle"></i> Add New Education
+            </button>
           </div>
           <div class="card-body">
             {% if education %}
@@ -868,12 +790,16 @@
                         </button>
                       </form>
 
-                      <form method="POST" style="display:inline;">
-                        <input type="hidden" name="edit_key" value="{{ key }}">
-                        <button class="btn btn-sm btn-primary" type="submit">
-                          <i class="bi bi-pencil"></i> Edit
-                        </button>
-                      </form>
+                      <button class="btn btn-sm btn-primary edit-edu-btn" 
+                        data-key="{{ key }}" 
+                        data-institution="{{ edu.institution|e }}" 
+                        data-designation="{{ edu.designation|e }}" 
+                        data-period="{{ edu.period|e }}" 
+                        data-location="{{ edu.location|e if edu.location else '' }}" 
+                        data-description="{{ edu.description|e }}" 
+                        data-bs-toggle="modal" data-bs-target="#editEducationModal">
+                        <i class="bi bi-pencil"></i> Edit
+                      </button>
                     </td>
                   </tr>
                   {% endfor %}
@@ -886,6 +812,177 @@
               <p class="text-muted mt-3">No education entries added yet. Add your first education above.</p>
             </div>
             {% endif %}
+          </div>
+        </div>
+
+
+        <!-- Add Experience Modal -->
+        <div class="modal fade" id="addExperienceModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <form method="post" action="{{ url_for('admin_resume') }}">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title highlight"><i class="bi bi-plus-circle"></i> Add New Experience</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Institution/Company</label>
+                      <input type="text" class="form-control" name="company" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Role</label>
+                      <input type="text" class="form-control" name="role" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Period</label>
+                      <input type="text" class="form-control" name="duration" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Location</label>
+                      <input type="text" class="form-control" name="location" placeholder="e.g., Hyderabad, India">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label class="form-label">Description</label>
+                      <textarea class="form-control" name="description" rows="4" required></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Add Experience</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Edit Experience Modal -->
+        <div class="modal fade" id="editExperienceModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <form method="post" action="{{ url_for('admin_resume') }}">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title highlight"><i class="bi bi-pencil"></i> Edit Experience</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <input type="hidden" name="update_key" id="editExpKey">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Institution/Company</label>
+                      <input type="text" class="form-control" id="editExpCompany" name="company" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Role</label>
+                      <input type="text" class="form-control" id="editExpRole" name="role" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Period</label>
+                      <input type="text" class="form-control" id="editExpDuration" name="duration" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Location</label>
+                      <input type="text" class="form-control" id="editExpLocation" name="location">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label class="form-label">Description</label>
+                      <textarea class="form-control" id="editExpDescription" name="description" rows="4" required></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Update Experience</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Add Education Modal -->
+        <div class="modal fade" id="addEducationModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <form method="post" action="{{ url_for('admin_resume') }}">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title highlight"><i class="bi bi-plus-circle"></i> Add New Education</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Institution</label>
+                      <input type="text" class="form-control" name="institution" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Degree / Designation</label>
+                      <input type="text" class="form-control" name="designation" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Period</label>
+                      <input type="text" class="form-control" name="period" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Location</label>
+                      <input type="text" class="form-control" name="location" placeholder="e.g., St. Louis, Missouri">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label class="form-label">Description</label>
+                      <textarea class="form-control" name="description" rows="4" required></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Add Education</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Edit Education Modal -->
+        <div class="modal fade" id="editEducationModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <form method="post" action="{{ url_for('admin_resume') }}">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title highlight"><i class="bi bi-pencil"></i> Edit Education</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <input type="hidden" name="update_key" id="editEduKey">
+                  <div class="row">
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Institution</label>
+                      <input type="text" class="form-control" id="editEduInstitution" name="institution" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Degree / Designation</label>
+                      <input type="text" class="form-control" id="editEduDesignation" name="designation" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Period</label>
+                      <input type="text" class="form-control" id="editEduPeriod" name="period" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                      <label class="form-label">Location</label>
+                      <input type="text" class="form-control" id="editEduLocation" name="location">
+                    </div>
+                    <div class="col-12 mb-3">
+                      <label class="form-label">Description</label>
+                      <textarea class="form-control" id="editEduDescription" name="description" rows="4" required></textarea>
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> Update Education</button>
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -931,30 +1028,37 @@
             indexField.value = event.relatedTarget.dataset.index || '';
           }
         });
-      }
-    });
-
-    // Auto-scroll to form after submission
-    document.addEventListener('DOMContentLoaded', function () {
-      // Check if we should scroll to form
-      if (sessionStorage.getItem('scrollToForm') === 'true') {
-        sessionStorage.removeItem('scrollToForm');
-        const formCard = document.getElementById('experience-form-card');
-        if (formCard) {
-          setTimeout(function () {
-            formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }, 100);
-        }
-      }
-
-      // Set flag when form is submitted
-      const forms = document.querySelectorAll('form[method="POST"]');
-      forms.forEach(function (form) {
-        form.addEventListener('submit', function () {
-          sessionStorage.setItem('scrollToForm', 'true');
+   
+      // Experience Modal Prefill
+      const editExperienceModal = document.getElementById('editExperienceModal');
+      if (editExperienceModal) {
+        editExperienceModal.addEventListener('show.bs.modal', event => {
+          const btn = event.relatedTarget;
+          document.getElementById('editExpKey').value = btn.dataset.key || '';
+          document.getElementById('editExpCompany').value = btn.dataset.company || '';
+          document.getElementById('editExpRole').value = btn.dataset.role || '';
+          document.getElementById('editExpDuration').value = btn.dataset.duration || '';
+          document.getElementById('editExpLocation').value = btn.dataset.location || '';
+          document.getElementById('editExpDescription').value = btn.dataset.description || '';
         });
-      });
+      }
+
+      // Education Modal Prefill
+      const editEducationModal = document.getElementById('editEducationModal');
+      if (editEducationModal) {
+        editEducationModal.addEventListener('show.bs.modal', event => {
+          const btn = event.relatedTarget;
+          document.getElementById('editEduKey').value = btn.dataset.key || '';
+          document.getElementById('editEduInstitution').value = btn.dataset.institution || '';
+          document.getElementById('editEduDesignation').value = btn.dataset.designation || '';
+          document.getElementById('editEduPeriod').value = btn.dataset.period || '';
+          document.getElementById('editEduLocation').value = btn.dataset.location || '';
+          document.getElementById('editEduDescription').value = btn.dataset.description || '';
+        });
+      }
     });
+
+    // Removed the scrolling behavior since we are using modals now!
   </script>
 
 </body>
