@@ -376,6 +376,86 @@ def admin_about():
             flash('Resume uploaded successfully!', 'success')
             return redirect(url_for('admin_about'))
 
+    if request.method == 'POST':
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+
+        if 'action_type' in request.form and request.form['action_type'] == 'update_profile':
+            profile_data = {
+                'name': request.form.get('profile_name', '').strip(),
+                'title': request.form.get('profile_title', '').strip(),
+                'location': request.form.get('profile_location', '').strip(),
+                'specialization': request.form.get('profile_specialization', '').strip(),
+                'experience_level': request.form.get('profile_experience', '').strip(),
+                'education': request.form.get('profile_education', '').strip(),
+                'languages': request.form.get('profile_languages', '').strip()
+            }
+            raw_profile = fb.get('/about/profile', None) or {}
+            if raw_profile:
+                key = next(iter(raw_profile))
+                fb.put('/about', f'profile/{key}', profile_data)
+            else:
+                fb.post('/about/profile', profile_data)
+            flash('Profile details updated successfully!', 'success')
+            return redirect(url_for('admin_about'))
+            
+        if 'edited_bio_heading' in request.form:
+            new_heading = request.form['edited_bio_heading'].strip()
+            raw_head = fb.get('/about/heading', None) or {}
+            if raw_head:
+                key = next(iter(raw_head))
+                fb.put(f'/about/heading/{key}', 'heading', new_heading)
+            else:
+                fb.post('/about/heading', {'heading': new_heading})
+            flash('About heading updated successfully!', 'success')
+
+        elif 'edited_bio' in request.form:
+            new_bio = request.form['edited_bio'].strip()
+            raw = fb.get('/about/bio', None) or {}
+            if raw:
+                key = next(iter(raw))
+                fb.put(f'/about/bio/{key}', 'bio', new_bio)
+            else:
+                fb.post('/about/bio', {'bio': new_bio})
+            flash('About bio updated successfully!', 'success')
+
+
+        return redirect(url_for('admin_about'))
+
+    raw_bio = fb.get('/about/bio', None) or {}
+    bio = next(iter(raw_bio.values())).get('bio', '') if raw_bio else ''
+
+    raw_head = fb.get('/about/heading', None) or {}
+    heading = next(iter(raw_head.values())).get('heading', '') if raw_head else ''
+
+
+    # Get resume info
+    raw_resume = fb.get('/about/resume', None) or {}
+    current_resume = None
+    resume_type = None
+    if raw_resume:
+        resume_data = next(iter(raw_resume.values()))
+        current_resume = resume_data.get('filename', '')
+        resume_type = resume_data.get('file_type', '')
+
+
+    # Get profile details
+    raw_profile = fb.get('/about/profile', None) or {}
+    profile = next(iter(raw_profile.values())) if raw_profile else {}
+    return render_template('admin-about.html', bio=bio, heading=heading, current_resume=current_resume, resume_type=resume_type, profile=profile)
+
+
+
+
+@app.route('/admin-skills', methods=['GET', 'POST'])
+@login_required
+@nocache
+def admin_skills():
+    # Strict validation handled by decorator
+    
     if 'new_title' in request.form:
         # GUEST GUARD
         if session.get('is_guest'):
@@ -415,27 +495,7 @@ def admin_about():
             flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
             return redirect(request.url)
 
-        if 'edited_bio_heading' in request.form:
-            new_heading = request.form['edited_bio_heading'].strip()
-            raw_head = fb.get('/about/heading', None) or {}
-            if raw_head:
-                key = next(iter(raw_head))
-                fb.put(f'/about/heading/{key}', 'heading', new_heading)
-            else:
-                fb.post('/about/heading', {'heading': new_heading})
-            flash('About heading updated successfully!', 'success')
-
-        elif 'edited_bio' in request.form:
-            new_bio = request.form['edited_bio'].strip()
-            raw = fb.get('/about/bio', None) or {}
-            if raw:
-                key = next(iter(raw))
-                fb.put(f'/about/bio/{key}', 'bio', new_bio)
-            else:
-                fb.post('/about/bio', {'bio': new_bio})
-            flash('About bio updated successfully!', 'success')
-
-        elif 'delete_index' in request.form:
+        if 'delete_index' in request.form:
             idx = int(request.form['delete_index'])
             raw = fb.get('/about/skills', None) or {}
             if raw:
@@ -464,39 +524,24 @@ def admin_about():
                     fb.put(f'/about/skills/{key}', 'skills', skills)
                     flash('Skill updated successfully!', 'success')
 
-        return redirect(url_for('admin_about'))
-
-    raw_bio = fb.get('/about/bio', None) or {}
-    bio = next(iter(raw_bio.values())).get('bio', '') if raw_bio else ''
-
-    raw_head = fb.get('/about/heading', None) or {}
-    heading = next(iter(raw_head.values())).get('heading', '') if raw_head else ''
+        return redirect(url_for('admin_skills'))
 
     raw_skills = fb.get('/about/skills', None) or {}
     skills = []
     for block in raw_skills.values():
         skills.extend(block.get('skills', []))
 
-    # Get resume info
-    raw_resume = fb.get('/about/resume', None) or {}
-    current_resume = None
-    resume_type = None
-    if raw_resume:
-        resume_data = next(iter(raw_resume.values()))
-        current_resume = resume_data.get('filename', '')
-        resume_type = resume_data.get('file_type', '')
-
-    return render_template('admin-about.html', bio=bio, heading=heading, skills=skills, current_resume=current_resume, resume_type=resume_type)
+    return render_template('admin-skills.html', skills=skills)
 
 
-
-@app.route('/admin-experience', methods=["GET", "POST"])
+@app.route('/admin-resume', methods=["GET", "POST"])
 @login_required
 @nocache
-def admin_experience():
+def admin_resume():
     # Strict validation handled by decorator
     
     edit_data = None
+    edit_data_type = None # 'experience' or 'education'
 
     if request.method == "POST":
         # GUEST GUARD
@@ -504,6 +549,7 @@ def admin_experience():
             flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
             return redirect(request.url)
 
+        # ---------------- EXPERIENCE HANDLING ----------------
         # Handle Professional Summary update
         if 'edited_professional_summary' in request.form:
             new_summary = request.form['edited_professional_summary'].strip()
@@ -514,7 +560,7 @@ def admin_experience():
             else:
                 fb.post('/resume/professional_summary', {'summary': new_summary})
             flash('Professional Summary updated successfully!', 'success')
-            return redirect(url_for('admin_experience'))
+            return redirect(url_for('admin_resume'))
         
         # Handle Add Technical Skill
         elif 'new_tech_skill_name' in request.form:
@@ -538,7 +584,7 @@ def admin_experience():
                         }]
                     })
             flash('Technical skill added successfully!', 'success')
-            return redirect(url_for('admin_experience'))
+            return redirect(url_for('admin_resume'))
         
         # Handle Edit Technical Skill
         elif 'edited_tech_skill_name' in request.form and 'edited_tech_skill_percentage' in request.form:
@@ -554,7 +600,7 @@ def admin_experience():
                     skills[idx]['percentage'] = skill_pct
                     fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
             flash('Technical skill updated successfully!', 'success')
-            return redirect(url_for('admin_experience'))
+            return redirect(url_for('admin_resume'))
         
         # Handle Delete Technical Skill
         elif 'delete_tech_skill_index' in request.form:
@@ -567,17 +613,23 @@ def admin_experience():
                     skills.pop(idx)
                     fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
             flash('Technical skill deleted successfully!', 'success')
-            return redirect(url_for('admin_experience'))
+            return redirect(url_for('admin_resume'))
         
         # Handle Edit request
         elif 'edit_key' in request.form:
             key = request.form['edit_key']
             edit_data = fb.get(f'/experience/{key}', None)
             if edit_data:
-                edit_data['key'] = key  # Include the key for the update
-        
-        # Handle Update submission
-        elif 'update_key' in request.form:
+                edit_data['key'] = key
+                edit_data_type = 'experience'
+            else:
+                edit_data = fb.get(f'/resume/education/{key}', None)
+                if edit_data:
+                    edit_data['key'] = key
+                    edit_data_type = 'education'
+
+        # Handle Update submission for Experience
+        elif 'update_key' in request.form and 'company' in request.form:
             key = request.form['update_key']
             updated = {
                 "company": request.form['company'],
@@ -588,9 +640,24 @@ def admin_experience():
             }
             fb.put('/experience', key, updated)
             flash('Experience updated successfully!', 'success')
-            return redirect(url_for('admin_experience'))
-        # Handle Add new experience
-        else:
+            return redirect(url_for('admin_resume'))
+
+        # Handle Update submission for Education
+        elif 'update_key' in request.form and 'institution' in request.form:
+            key = request.form['update_key']
+            updated = {
+                "institution": request.form['institution'],
+                "designation": request.form['designation'],
+                "period": request.form['period'],
+                "location": request.form.get('location', ''),
+                "description": request.form['description']
+            }
+            fb.put('/resume/education', key, updated)
+            flash('Education updated successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+
+        # Handle Add new Experience
+        elif 'company' in request.form:
             company = request.form.get("company")
             role = request.form.get("role")
             duration = request.form.get("duration")
@@ -605,7 +672,27 @@ def admin_experience():
                     "description": description
                 })
                 flash('Experience added successfully!', 'success')
-            return redirect(url_for('admin_experience'))
+            return redirect(url_for('admin_resume'))
+
+        # Handle Add new Education
+        elif 'institution' in request.form:
+            institution = request.form.get("institution")
+            designation = request.form.get("designation")
+            period = request.form.get("period")
+            location = request.form.get("location", "")
+            description = request.form.get("description")
+
+            if institution and designation and period and description:
+                fb.post('/resume/education', {
+                    "institution": institution,
+                    "designation": designation,
+                    "period": period,
+                    "location": location,
+                    "description": description
+                })
+                flash('Education added successfully!', 'success')
+
+            return redirect(url_for('admin_resume'))
 
     # Get Professional Summary
     professional_summary = ''
@@ -633,6 +720,7 @@ def admin_experience():
         technical_skills = []
 
     experiences = fb.get('/experience', None) or {}
+    education = fb.get('/resume/education', None) or {}
     
     # Ensure variables are always defined
     if professional_summary is None:
@@ -642,9 +730,11 @@ def admin_experience():
     if edit_data is None:
         edit_data = None
     
-    return render_template('admin-experience.html', 
+    return render_template('admin-resume.html', 
                          experiences=experiences, 
+                         education=education,
                          edit_data=edit_data,
+                         edit_data_type=edit_data_type,
                          professional_summary=professional_summary,
                          technical_skills=technical_skills)
 
@@ -655,93 +745,28 @@ def delete_experience():
     # GUEST GUARD
     if session.get('is_guest'):
         flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
-        return redirect(url_for('admin_experience'))
+        return redirect(url_for('admin_resume'))
 
     key = request.form.get('key')
     if key:
         fb.delete('/experience', key)
         flash('Experience deleted successfully!', 'success')
-    return redirect(url_for('admin_experience'))
-
-
-
-@app.route('/admin-education', methods=["GET", "POST"])
-@login_required
-@nocache
-def admin_education():
-    # Strict validation handled by decorator
-    edit_data = None
-    if request.method == "POST":
-        # GUEST GUARD
-        if session.get('is_guest'):
-            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
-            return redirect(request.url)
-
-        # Edit button clicked
-        if 'edit_key' in request.form:
-            key = request.form['edit_key']
-            edit_data = fb.get(f'/resume/education/{key}', None)
-            if edit_data:
-                edit_data['key'] = key
-
-        # Update button submitted
-        elif 'update_key' in request.form:
-            key = request.form['update_key']
-            updated = {
-                "institution": request.form['institution'],
-                "designation": request.form['designation'],
-                "period": request.form['period'],
-                "location": request.form.get('location', ''),
-                "description": request.form['description']
-            }
-            fb.put('/resume/education', key, updated)
-            flash('Education updated successfully!', 'success')
-            return redirect(url_for('admin_education'))
-
-        # Add new entry
-        else:
-            institution = request.form.get("institution")
-            designation = request.form.get("designation")
-            period = request.form.get("period")
-            location = request.form.get("location", "")
-            description = request.form.get("description")
-
-            if institution and designation and period and description:
-                fb.post('/resume/education', {
-                    "institution": institution,
-                    "designation": designation,
-                    "period": period,
-                    "location": location,
-                    "description": description
-                })
-                flash('Education added successfully!', 'success')
-
-            return redirect(url_for('admin_education'))
-
-    education = fb.get('/resume/education', None) or {}
-    return render_template(
-        'admin-education.html',
-        education=education,
-        edit_data=edit_data
-    )
-
+    return redirect(url_for('admin_resume'))
 
 @app.route('/delete-education', methods=["POST"])
 @login_required
 @nocache
 def delete_education():
-    # Strict validation handled by decorator
     # GUEST GUARD
     if session.get('is_guest'):
         flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
-        return redirect(url_for('admin_education'))
+        return redirect(url_for('admin_resume'))
 
     key = request.form.get('key')
     if key:
         fb.delete('/resume/education', key)
         flash('Education deleted successfully!', 'success')
-    return redirect(url_for('admin_education'))
-
+    return redirect(url_for('admin_resume'))
 
 @app.route('/admin-certification', methods=["GET", "POST"])
 @login_required

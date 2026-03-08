@@ -209,14 +209,14 @@
               </div>
 
               <div class="profile-content">
-                <h3>JOHN SATHVIK </h3>
-                <p class="profession">AWS Solutions Architect</p>
+                <h3>{{ data.profile.name }}</h3>
+                <p class="profession">{{ data.profile.title }}</p>
                 <div class="contact-links">
                   {% if data.email %}<a href="mailto:{{ data.email }}" class="contact-item"><i
                       class="bi bi-envelope"></i> {{ data.email }}</a>{% endif %}
                   {% if data.phone %}<a href="tel:{{ data.phone }}" class="contact-item"><i class="bi bi-telephone"></i>
                     {{ data.phone }}</a>{% endif %}
-                  <a href="#" class="contact-item"><i class="bi bi-geo-alt"></i> St. Louis, Missouri, United States</a>
+                  <a href="#" class="contact-item"><i class="bi bi-geo-alt"></i> {{ data.profile.location }}</a>
                 </div>
               </div>
             </div>
