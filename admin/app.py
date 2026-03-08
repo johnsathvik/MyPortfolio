@@ -216,12 +216,640 @@ def admin_login():
         else:
             flash("Admin credentials not found.")
         
-        return render_template(
-        'admin-resume.html',
-        professional_summary=professional_summary,
-        technical_skills=technical_skills,
-        experiences=experiences,
-        education=education
+        return render_template('admin-login.html')
+    
+    return render_template('admin-login.html')
+
+
+
+
+@app.route('/admin-home', methods=['GET', 'POST'])
+@login_required
+@nocache
+def admin_intro():
+    # Strict validation handled by decorator
+
+
+    if request.method == 'POST':
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        if request.is_json:
+            data = request.get_json()
+            if 'reorder_skills' in data:
+                # GUEST GUARD
+                if session.get('is_guest'):
+                    return {'status': 'guest_mode', 'message': "Guest Mode: Changes simulated."}, 200
+                
+                new_order = data['reorder_skills']
+                if isinstance(new_order, list) and new_order:
+                    raw = fb.get('/landing/skills-list', None) or {}
+                    if raw:
+                        key = next(iter(raw))
+                        fb.put(f'/landing/skills-list/{key}', 'skills', new_order)
+                        return {'status': 'success'}, 200
+                    else:
+                         return {'status': 'error', 'message': 'No skills found'}, 400
+
+        form = request.form
+        if 'new_skill' in form:
+            new_skill = form['new_skill'].strip()
+            if new_skill:
+                raw = fb.get('/landing/skills-list', None) or {}
+                if raw:
+                    key = next(iter(raw))
+                    skills = raw[key].get('skills', [])
+                    skills.append(new_skill)
+                    fb.put(f'/landing/skills-list/{key}', 'skills', skills)
+                else:
+                    fb.post('/landing/skills-list', {'skills': [new_skill]})
+                flash('Skill added successfully!', 'success')
+        elif 'edited_skill' in form:
+            idx = int(form['edit_index'])
+            edited = form['edited_skill'].strip()
+            raw = fb.get('/landing/skills-list', None) or {}
+            if raw:
+                key = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                if 0 <= idx < len(skills):
+                    skills[idx] = edited
+                    fb.put(f'/landing/skills-list/{key}', 'skills', skills)
+                    flash('Skill updated successfully!', 'success')
+        elif 'delete_index' in form:
+            idx = int(form['delete_index'])
+            raw = fb.get('/landing/skills-list', None) or {}
+            if raw:
+                key = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                if 0 <= idx < len(skills):
+                    skills.pop(idx)
+                    fb.put(f'/landing/skills-list/{key}', 'skills', skills)
+                    flash('Skill deleted successfully!', 'success')
+        elif 'edited_bio' in form:
+            new_bio = form['edited_bio'].strip()
+            if new_bio:
+                raw_bio = fb.get('/landing/bio', None) or {}
+                if raw_bio:
+                    bio_key = next(iter(raw_bio))
+                    fb.put(f'/landing/bio/{bio_key}', 'bio', new_bio)
+                else:
+                    fb.post('/landing/bio', {'bio': new_bio})
+                flash('Bio updated successfully!', 'success')
+        return redirect(url_for('admin_intro'))
+
+    raw = fb.get('/landing/skills-list', None) or {}
+    skills = []
+    for block in raw.values():
+        skills.extend(block.get('skills', []))
+
+    raw_bio = fb.get('/landing/bio', None) or {}
+    bio = next(iter(raw_bio.values())).get('bio', '') if raw_bio else ''
+
+    # Get profile image path
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    profile_image_path = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'profile', 'main.jpg')
+    profile_image_url = url_for('admin_profile_image', filename='main.jpg') if os.path.exists(profile_image_path) else None
+
+    return render_template('admin-home.html', skills=skills, bio=bio, profile_image_url=profile_image_url)
+
+
+
+@app.route('/admin-about', methods=['GET', 'POST'])
+@login_required
+def admin_about():
+    # Strict validation handled by decorator
+
+    # Handle file upload
+    if 'resume_file' in request.files:
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        file = request.files['resume_file']
+        if file and file.filename:
+            # Check file extension
+            filename = secure_filename(file.filename)
+            file_ext = os.path.splitext(filename)[1].lower()
+            
+            if file_ext not in ['.pdf', '.txt']:
+                flash('Invalid file type. Please upload a PDF or TXT file.', 'error')
+                return redirect(url_for('admin_about'))
+            
+            # Define the path to save the resume
+            # Path to main project's static/resume folder
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            resume_dir = os.path.join(base_dir, 'main', 'project', 'static', 'resume')
+            
+            # Create directory if it doesn't exist
+            os.makedirs(resume_dir, exist_ok=True)
+            
+            # Save file as Resume.pdf or Resume.txt
+            resume_filename = f'Resume{file_ext}'
+            resume_path = os.path.join(resume_dir, resume_filename)
+            
+            # Remove old resume files if they exist
+            old_pdf = os.path.join(resume_dir, 'Resume.pdf')
+            old_txt = os.path.join(resume_dir, 'Resume.txt')
+            if os.path.exists(old_pdf) and resume_filename != 'Resume.pdf':
+                os.remove(old_pdf)
+            if os.path.exists(old_txt) and resume_filename != 'Resume.txt':
+                os.remove(old_txt)
+            
+            # Save the new file
+            file.save(resume_path)
+            
+            # Store resume info in Firebase
+            raw_resume = fb.get('/about/resume', None) or {}
+            if raw_resume:
+                key = next(iter(raw_resume))
+                fb.put(f'/about/resume/{key}', 'filename', resume_filename)
+                fb.put(f'/about/resume/{key}', 'file_type', file_ext[1:].upper())
+            else:
+                fb.post('/about/resume', {
+                    'filename': resume_filename,
+                    'file_type': file_ext[1:].upper()
+                })
+            
+            flash('Resume uploaded successfully!', 'success')
+            return redirect(url_for('admin_about'))
+
+    if request.method == 'POST':
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+
+        if 'action_type' in request.form and request.form['action_type'] == 'update_profile':
+            profile_data = {
+                'name': request.form.get('profile_name', '').strip(),
+                'title': request.form.get('profile_title', '').strip(),
+                'location': request.form.get('profile_location', '').strip(),
+                'specialization': request.form.get('profile_specialization', '').strip(),
+                'experience_level': request.form.get('profile_experience', '').strip(),
+                'education': request.form.get('profile_education', '').strip(),
+                'languages': request.form.get('profile_languages', '').strip()
+            }
+            raw_profile = fb.get('/about/profile', None) or {}
+            if raw_profile:
+                key = next(iter(raw_profile))
+                fb.put('/about', f'profile/{key}', profile_data)
+            else:
+                fb.post('/about/profile', profile_data)
+            flash('Profile details updated successfully!', 'success')
+            return redirect(url_for('admin_about'))
+            
+        if 'edited_bio_heading' in request.form:
+            new_heading = request.form['edited_bio_heading'].strip()
+            raw_head = fb.get('/about/heading', None) or {}
+            if raw_head:
+                key = next(iter(raw_head))
+                fb.put(f'/about/heading/{key}', 'heading', new_heading)
+            else:
+                fb.post('/about/heading', {'heading': new_heading})
+            flash('About heading updated successfully!', 'success')
+
+        elif 'edited_bio' in request.form:
+            new_bio = request.form['edited_bio'].strip()
+            raw = fb.get('/about/bio', None) or {}
+            if raw:
+                key = next(iter(raw))
+                fb.put(f'/about/bio/{key}', 'bio', new_bio)
+            else:
+                fb.post('/about/bio', {'bio': new_bio})
+            flash('About bio updated successfully!', 'success')
+
+
+        return redirect(url_for('admin_about'))
+
+    raw_bio = fb.get('/about/bio', None) or {}
+    bio = next(iter(raw_bio.values())).get('bio', '') if raw_bio else ''
+
+    raw_head = fb.get('/about/heading', None) or {}
+    heading = next(iter(raw_head.values())).get('heading', '') if raw_head else ''
+
+
+    # Get resume info
+    raw_resume = fb.get('/about/resume', None) or {}
+    current_resume = None
+    resume_type = None
+    if raw_resume:
+        resume_data = next(iter(raw_resume.values()))
+        current_resume = resume_data.get('filename', '')
+        resume_type = resume_data.get('file_type', '')
+
+
+    # Get profile details
+    raw_profile = fb.get('/about/profile', None) or {}
+    profile = next(iter(raw_profile.values())) if raw_profile else {}
+    return render_template('admin-about.html', bio=bio, heading=heading, current_resume=current_resume, resume_type=resume_type, profile=profile)
+
+
+
+
+@app.route('/admin-skills', methods=['GET', 'POST'])
+@login_required
+@nocache
+def admin_skills():
+    # Strict validation handled by decorator
+    
+    if 'new_title' in request.form:
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        title = request.form['new_title'].strip()
+        desc = request.form['new_description'].strip()
+        pct = int(request.form['new_percentage'])
+        category = request.form.get('new_category', 'Cloud & DevOps').strip()
+        if title and desc and 0 <= pct <= 100:
+            raw = fb.get('/about/skills', None) or {}
+            if raw:
+                key = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                skills.append({
+                    'Skill': title,
+                    'Description': desc,
+                    'percentage': pct,
+                    'category': category
+                })
+                fb.put(f'/about/skills/{key}', 'skills', skills)
+            else:
+                fb.post('/about/skills', {
+                    'skills': [{
+                        'Skill': title,
+                        'Description': desc,
+                        'percentage': pct,
+                        'category': category
+                    }]
+                })
+            flash('Skill added successfully!', 'success')
+
+    elif request.method == 'POST':
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        if 'delete_index' in request.form:
+            idx = int(request.form['delete_index'])
+            raw = fb.get('/about/skills', None) or {}
+            if raw:
+                key = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                if 0 <= idx < len(skills):
+                    skills.pop(idx)
+                    fb.put(f'/about/skills/{key}', 'skills', skills)
+                    flash('Skill deleted successfully!', 'success')
+
+        elif 'edited_skill' in request.form and 'edited_description' in request.form and 'edited_percentage' in request.form:
+            idx   = int(request.form['edit_index'])
+            title = request.form['edited_skill'].strip()
+            desc  = request.form['edited_description'].strip()
+            pct   = int(request.form['edited_percentage'])
+            category = request.form.get('edited_category', 'Cloud & DevOps').strip()
+            raw   = fb.get('/about/skills', None) or {}
+            if raw:
+                key    = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                if 0 <= idx < len(skills):
+                    skills[idx]['Skill']       = title
+                    skills[idx]['Description'] = desc
+                    skills[idx]['percentage']  = pct
+                    skills[idx]['category']    = category
+                    fb.put(f'/about/skills/{key}', 'skills', skills)
+                    flash('Skill updated successfully!', 'success')
+
+        return redirect(url_for('admin_skills'))
+
+    raw_skills = fb.get('/about/skills', None) or {}
+    skills = []
+    for block in raw_skills.values():
+        skills.extend(block.get('skills', []))
+
+    return render_template('admin-skills.html', skills=skills)
+
+
+@app.route('/admin-resume', methods=["GET", "POST"])
+@login_required
+@nocache
+def admin_resume():
+    # Strict validation handled by decorator
+    
+    edit_data = None
+    edit_data_type = None # 'experience' or 'education'
+
+    if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        # ---------------- EXPERIENCE HANDLING ----------------
+        # Handle Professional Summary update
+        if 'edited_professional_summary' in request.form:
+            new_summary = request.form['edited_professional_summary'].strip()
+            raw_summary = fb.get('/resume/professional_summary', None) or {}
+            if raw_summary:
+                key = next(iter(raw_summary))
+                fb.put(f'/resume/professional_summary/{key}', 'summary', new_summary)
+            else:
+                fb.post('/resume/professional_summary', {'summary': new_summary})
+            flash('Professional Summary updated successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+        
+        # Handle Add Technical Skill
+        elif 'new_tech_skill_name' in request.form:
+            skill_name = request.form['new_tech_skill_name'].strip()
+            skill_pct = int(request.form['new_tech_skill_percentage'])
+            if skill_name and 0 <= skill_pct <= 100:
+                raw = fb.get('/resume/technical_skills', None) or {}
+                if raw:
+                    key = next(iter(raw))
+                    skills = raw[key].get('skills', [])
+                    skills.append({
+                        'name': skill_name,
+                        'percentage': skill_pct
+                    })
+                    fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
+                else:
+                    fb.post('/resume/technical_skills', {
+                        'skills': [{
+                            'name': skill_name,
+                            'percentage': skill_pct
+                        }]
+                    })
+            flash('Technical skill added successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+        
+        # Handle Edit Technical Skill
+        elif 'edited_tech_skill_name' in request.form and 'edited_tech_skill_percentage' in request.form:
+            idx = int(request.form['edit_tech_skill_index'])
+            skill_name = request.form['edited_tech_skill_name'].strip()
+            skill_pct = int(request.form['edited_tech_skill_percentage'])
+            raw = fb.get('/resume/technical_skills', None) or {}
+            if raw:
+                key = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                if 0 <= idx < len(skills):
+                    skills[idx]['name'] = skill_name
+                    skills[idx]['percentage'] = skill_pct
+                    fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
+            flash('Technical skill updated successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+        
+        # Handle Delete Technical Skill
+        elif 'delete_tech_skill_index' in request.form:
+            idx = int(request.form['delete_tech_skill_index'])
+            raw = fb.get('/resume/technical_skills', None) or {}
+            if raw:
+                key = next(iter(raw))
+                skills = raw[key].get('skills', [])
+                if 0 <= idx < len(skills):
+                    skills.pop(idx)
+                    fb.put(f'/resume/technical_skills/{key}', 'skills', skills)
+            flash('Technical skill deleted successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+        
+        # Handle Update submission for Experience
+        elif 'update_key' in request.form and 'company' in request.form:
+            key = request.form['update_key']
+            updated = {
+                "company": request.form['company'],
+                "role": request.form['role'],
+                "duration": request.form['duration'],
+                "location": request.form.get('location', ''),
+                "description": request.form['description']
+            }
+            fb.put('/experience', key, updated)
+            flash('Experience updated successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+
+        # Handle Update submission for Education
+        elif 'update_key' in request.form and 'institution' in request.form:
+            key = request.form['update_key']
+            updated = {
+                "institution": request.form['institution'],
+                "designation": request.form['designation'],
+                "period": request.form['period'],
+                "location": request.form.get('location', ''),
+                "description": request.form['description']
+            }
+            fb.put('/resume/education', key, updated)
+            flash('Education updated successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+
+        # Handle Add new Experience
+        elif 'company' in request.form:
+            company = request.form.get("company")
+            role = request.form.get("role")
+            duration = request.form.get("duration")
+            location = request.form.get("location", "")
+            description = request.form.get("description")
+            if company and role and duration and description:
+                fb.post('/experience', {
+                    "company": company,
+                    "role": role,
+                    "duration": duration,
+                    "location": location,
+                    "description": description
+                })
+                flash('Experience added successfully!', 'success')
+            return redirect(url_for('admin_resume'))
+
+        # Handle Add new Education
+        elif 'institution' in request.form:
+            institution = request.form.get("institution")
+            designation = request.form.get("designation")
+            period = request.form.get("period")
+            location = request.form.get("location", "")
+            description = request.form.get("description")
+
+            if institution and designation and period and description:
+                fb.post('/resume/education', {
+                    "institution": institution,
+                    "designation": designation,
+                    "period": period,
+                    "location": location,
+                    "description": description
+                })
+                flash('Education added successfully!', 'success')
+
+            return redirect(url_for('admin_resume'))
+
+    # Get Professional Summary
+    professional_summary = ''
+    try:
+        raw_summary = fb.get('/resume/professional_summary', None) or {}
+        if raw_summary:
+            summary_data = next(iter(raw_summary.values()))
+            if isinstance(summary_data, dict):
+                professional_summary = summary_data.get('summary', '')
+    except Exception as e:
+        print(f"Error getting professional summary: {e}")
+        professional_summary = ''
+    
+    # Get Technical Skills
+    technical_skills = []
+    try:
+        raw_tech_skills = fb.get('/resume/technical_skills', None) or {}
+        if raw_tech_skills:
+            for block in raw_tech_skills.values():
+                if isinstance(block, dict) and 'skills' in block:
+                    if isinstance(block.get('skills'), list):
+                        technical_skills.extend(block.get('skills', []))
+    except Exception as e:
+        print(f"Error getting technical skills: {e}")
+        technical_skills = []
+
+    experiences = fb.get('/experience', None) or {}
+    education = fb.get('/resume/education', None) or {}
+    
+    # Ensure variables are always defined
+    if professional_summary is None:
+        professional_summary = ''
+    if technical_skills is None:
+        technical_skills = []
+    if edit_data is None:
+        edit_data = None
+    
+    return render_template('admin-resume.html', 
+                         experiences=experiences, 
+                         education=education,
+                         professional_summary=professional_summary,
+                         technical_skills=technical_skills)
+
+
+@app.route('/delete-experience', methods=['POST'])
+@nocache
+def delete_experience():
+    # GUEST GUARD
+    if session.get('is_guest'):
+        flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+        return redirect(url_for('admin_resume'))
+
+    key = request.form.get('key')
+    if key:
+        fb.delete('/experience', key)
+        flash('Experience deleted successfully!', 'success')
+    return redirect(url_for('admin_resume'))
+
+@app.route('/delete-education', methods=["POST"])
+@login_required
+@nocache
+def delete_education():
+    # GUEST GUARD
+    if session.get('is_guest'):
+        flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+        return redirect(url_for('admin_resume'))
+
+    key = request.form.get('key')
+    if key:
+        fb.delete('/resume/education', key)
+        flash('Education deleted successfully!', 'success')
+    return redirect(url_for('admin_resume'))
+
+@app.route('/admin-certification', methods=["GET", "POST"])
+@login_required
+@nocache
+def admin_certification():
+    # Strict validation handled by decorator
+    
+    edit_data = None
+    
+    if request.method == "POST":
+        # GUEST GUARD
+        if session.get('is_guest'):
+            flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
+            return redirect(request.url)
+
+        # Handle file upload
+        image_path = None
+        if 'cert_image' in request.files:
+            file = request.files['cert_image']
+            if file and file.filename:
+                # Get file extension
+                filename = secure_filename(file.filename)
+                file_ext = os.path.splitext(filename)[1].lower()
+                
+                # Validate file type
+                allowed_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']
+                if file_ext not in allowed_extensions:
+                    flash('Invalid file type. Please upload an image file (JPG, PNG, WEBP, etc.).', 'error')
+                    return redirect(url_for('admin_certification'))
+                
+                # Define the path to save the image
+                base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                portfolio_dir = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'portfolio')
+                
+                # Create directory if it doesn't exist
+                os.makedirs(portfolio_dir, exist_ok=True)
+                
+                # Generate unique filename
+                unique_filename = f"cert-{uuid.uuid4().hex[:8]}{file_ext}"
+                image_path = f"assets/img/portfolio/{unique_filename}"
+                file_path = os.path.join(portfolio_dir, unique_filename)
+                
+                # Save the file
+                file.save(file_path)
+        
+        # Edit button clicked
+        if 'edit_key' in request.form:
+            key = request.form['edit_key']
+            edit_data = fb.get(f'/certifications/{key}', None)
+            if edit_data:
+                edit_data['key'] = key
+        
+        # Update button submitted
+        elif 'update_key' in request.form:
+            key = request.form['update_key']
+            # Get existing image path if no new file uploaded
+            if not image_path:
+                existing_cert = fb.get(f'/certifications/{key}', None)
+                if existing_cert:
+                    image_path = existing_cert.get('image', '')
+                else:
+                    flash('Error: Could not find existing certification.', 'error')
+                    return redirect(url_for('admin_certification'))
+            
+            updated = {
+                "title": request.form['title'],
+                "image": image_path,
+                "filter": request.form['filter'],
+                "url": request.form.get('url', '')  # Optional
+            }
+            fb.put('/certifications', key, updated)
+            flash('Certification updated successfully!', 'success')
+            return redirect(url_for('admin_certification'))
+        
+        # Add new entry
+        else:
+            title = request.form.get("title")
+            filter_category = request.form.get("filter")
+            url = request.form.get("url", "")  # Optional
+            
+            if title and filter_category and image_path:
+                fb.post('/certifications', {
+                    "title": title,
+                    "image": image_path,
+                    "filter": filter_category,
+                    "url": url
+                })
+                flash('Certification added successfully!', 'success')
+            else:
+                flash('Please fill in all required fields and upload an image.', 'error')
+            
+            return redirect(url_for('admin_certification'))
+    
+    certifications = fb.get('/certifications', None) or {}
+    return render_template(
+        'admin-certification.html',
+        certifications=certifications,
+        edit_data=edit_data
     )
 
 
