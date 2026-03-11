@@ -796,8 +796,8 @@ section,
   }
 
   .hero .hero-visual .profile-container {
-    width: 350px;
-    height: 350px;
+    width: min(350px, 90vw);
+    height: min(350px, 90vw);
   }
 }
 
@@ -828,8 +828,8 @@ section,
   }
 
   .hero .hero-visual .profile-container {
-    width: 300px;
-    height: 300px;
+    width: min(300px, 90vw);
+    height: min(300px, 90vw);
   }
 
   .hero .background-elements .bg-circle.circle-1 {
