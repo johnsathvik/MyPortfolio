@@ -29,6 +29,10 @@ load_secrets()
 app = Flask(__name__)
 app.secret_key = '*John3211#*John3211#*John3211#*John3211#*John3211#'
 
+# Dev config for instant reload 
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 # Firebase wrapper class to replace python-firebase
 class FirebaseApplication:
     def __init__(self, url, auth=None):
@@ -524,14 +528,112 @@ def admin_skills():
                     fb.put(f'/about/skills/{key}', 'skills', skills)
                     flash('Skill updated successfully!', 'success')
 
+        elif 'new_category_name' in request.form:
+            cat_name = request.form['new_category_name'].strip()
+            if cat_name:
+                raw_cats = fb.get('/about/skill_categories', None) or {}
+                if raw_cats:
+                    key = next(iter(raw_cats))
+                    cats = raw_cats[key].get('categories', [])
+                    if cats is None:
+                        cats = []
+                    if cat_name not in cats:
+                        cats.append(cat_name)
+                        fb.put(f'/about/skill_categories/{key}', 'categories', cats)
+                        flash('Category added successfully!', 'success')
+                    else:
+                        flash('Category already exists!', 'warning')
+                else:
+                    fb.post('/about/skill_categories', {
+                        'categories': ['Cloud & DevOps', 'Web Development', cat_name]
+                    })
+                    flash('Category added successfully!', 'success')
+
+        elif 'delete_category_name' in request.form:
+            cat_name = request.form['delete_category_name'].strip()
+            if cat_name:
+                raw_cats = fb.get('/about/skill_categories', None) or {}
+                if raw_cats:
+                    key = next(iter(raw_cats))
+                    cats = raw_cats[key].get('categories', [])
+                    if cats is None:
+                        cats = []
+                    if cat_name in cats:
+                        cats.remove(cat_name)
+                        fb.put(f'/about/skill_categories/{key}', 'categories', cats)
+                        flash('Category deleted successfully!', 'success')
+                else:
+                    cats = ['Cloud & DevOps', 'Web Development']
+                    if cat_name in cats:
+                        cats.remove(cat_name)
+                        fb.post('/about/skill_categories', {
+                            'categories': cats
+                        })
+                        flash('Category deleted successfully!', 'success')
+
+        elif 'edit_category_old_name' in request.form and 'edit_category_new_name' in request.form:
+            old_name = request.form['edit_category_old_name'].strip()
+            new_name = request.form['edit_category_new_name'].strip()
+
+            if old_name and new_name and old_name != new_name:
+                # Update Category List
+                raw_cats = fb.get('/about/skill_categories', None) or {}
+                if raw_cats:
+                    key = next(iter(raw_cats))
+                    cats = raw_cats[key].get('categories', [])
+                    if cats is None:
+                        cats = []
+                    
+                    if old_name in cats:
+                        # Replace string at index
+                        idx = cats.index(old_name)
+                        cats[idx] = new_name
+                        fb.put(f'/about/skill_categories/{key}', 'categories', cats)
+                        
+                        # Update all skills referencing the old category
+                        raw_skills = fb.get('/about/skills', None) or {}
+                        if raw_skills:
+                            skills_key = next(iter(raw_skills))
+                            skills = raw_skills[skills_key].get('skills', [])
+                            made_changes = False
+                            
+                            for skill in skills:
+                                if skill.get('category') == old_name:
+                                    skill['category'] = new_name
+                                    made_changes = True
+                                    
+                            if made_changes:
+                                fb.put(f'/about/skills/{skills_key}', 'skills', skills)
+                                
+                        flash(f'Category "{old_name}" renamed to "{new_name}" and skills updated!', 'success')
+                    else:
+                        flash(f'Category "{old_name}" not found.', 'danger')
+
         return redirect(url_for('admin_skills'))
 
     raw_skills = fb.get('/about/skills', None) or {}
     skills = []
-    for block in raw_skills.values():
-        skills.extend(block.get('skills', []))
+    if raw_skills:
+        skills_key = next(iter(raw_cats)) if 'raw_cats' in locals() else next(iter(raw_skills))
+        # Wait, the `skills_key` should be retrieved from raw_skills
+        skills_key = next(iter(raw_skills))
+        skills = raw_skills[skills_key].get('skills', [])
+        
+        # Keep skills grouped by category for the admin UI and maintain index integrity
+        sorted_skills = sorted(skills, key=lambda x: str(x.get('category', '')))
+        if skills != sorted_skills:
+            fb.put(f'/about/skills/{skills_key}', 'skills', sorted_skills)
+            skills = sorted_skills
 
-    return render_template('admin-skills.html', skills=skills)
+    raw_cats = fb.get('/about/skill_categories', None) or {}
+    categories = ['Cloud & DevOps', 'Web Development']
+    if raw_cats:
+        key = next(iter(raw_cats))
+        fetched_cats = raw_cats[key].get('categories')
+        if fetched_cats is not None:
+             categories = fetched_cats
+
+    return render_template('admin-skills.html', skills=skills, categories=categories)
 
 
 @app.route('/admin-resume', methods=["GET", "POST"])

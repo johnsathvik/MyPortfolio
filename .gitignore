@@ -58,3 +58,8 @@ rag/.cache/
 # Optional: Local DB / large files
 # =========================
 *.db
+
+# =========================
+# Backup Scripts
+# =========================
+past_scripts/

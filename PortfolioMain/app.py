@@ -31,6 +31,10 @@ from email.message import EmailMessage
 
 app = Flask(__name__)
 
+# Dev config for instant reload
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 # ---------- Simple SMTP configuration (edit these values) ----------
 # For Gmail:
 #  - Enable 2FA on your Google account
@@ -184,6 +188,20 @@ def home():
                         if isinstance(block.get('skills'), list):
                             about_skills.extend(block.get('skills', []))
 
+        # Get skill categories
+        skill_categories = ['Cloud & DevOps', 'Web Development']
+        if isinstance(about_data, dict):
+            raw_about_cats = about_data.get('skill_categories', {})
+            if isinstance(raw_about_cats, dict):
+                try:
+                    cat_val = next(iter(raw_about_cats.values()))
+                    if isinstance(cat_val, dict) and 'categories' in cat_val:
+                        fetched_cats = cat_val.get('categories')
+                        if fetched_cats is not None:
+                            skill_categories = fetched_cats
+                except (StopIteration, AttributeError):
+                    pass
+
         # Get Professional Summary
         professional_summary = ''
         try:
@@ -294,6 +312,7 @@ def home():
             'skills': skills,
             'typed_items': typed_items,  # For the typed.js animation
             'about_skills': about_skills,
+            'skill_categories': skill_categories,
             'experiences': experience_data if isinstance(experience_data, dict) else {},
             'education': education_data if isinstance(education_data, dict) else {},
             'professional_summary': professional_summary,
@@ -332,6 +351,7 @@ def home():
             'skills': [],
             'typed_items': 'AWS Solutions Architect, Web Developer, Cloud Enthusiast',
             'about_skills': [],
+            'skill_categories': ['Cloud & DevOps', 'Web Development'],
             'experiences': {},
             'education': {},
             'email': '',

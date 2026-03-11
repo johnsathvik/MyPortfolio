@@ -276,191 +276,69 @@
 
         {% if data.about_skills and data.about_skills|length > 0 %}
         <div class="row">
-          <div class="col-lg-6">
-            <div class="skills-category" data-aos="fade-up" data-aos-delay="200">
-              <h3>Cloud & DevOps</h3>
-              <div class="skills-animation">
+          {% for category in data.skill_categories %}
+          
+          {% set has_skills = namespace(value=false) %}
+          {% for skill in data.about_skills %}
+            {% if (skill.get('category', 'Cloud & DevOps') == category) %}
+              {% set has_skills.value = true %}
+            {% endif %}
+          {% endfor %}
+          
+          {% if has_skills.value %}
+          <div class="col-lg-6 mb-4">
+            <div class="skills-category" data-aos="fade-up" data-aos-delay="{{ 200 + loop.index0 * 100 }}">
+              <h3>{{ category }}</h3>
+              <div class="d-flex flex-wrap gap-2 mt-3 mb-4">
                 {% for skill in data.about_skills %}
-                {% if (skill.get('category', 'Cloud & DevOps') == 'Cloud & DevOps') %}
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>{{ skill['Skill'] if 'Skill' in skill else 'Skill Name' }}</h4>
-                    <span class="skill-percentage">{{ skill['percentage'] if 'percentage' in skill else 0 }}%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar"
-                      aria-valuenow="{{ skill['percentage'] if 'percentage' in skill else 0 }}" aria-valuemin="0"
-                      aria-valuemax="100" style="width: {{ skill['percentage'] if 'percentage' in skill else 0 }}%">
-                    </div>
-                  </div>
-                  {% if skill.get('Description') %}
-                  <div class="skill-tooltip">{{ skill['Description'] }}</div>
-                  {% endif %}
-                </div>
+                {% if (skill.get('category', 'Cloud & DevOps') == category) %}
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;"
+                      onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" 
+                      onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';"
+                      {% if skill.get('Description') %}title="{{ skill['Description'] }}" data-bs-toggle="tooltip"{% endif %}>
+                  {{ skill['Skill'] if 'Skill' in skill else 'Skill Name' }}
+                </span>
                 {% endif %}
                 {% endfor %}
               </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="skills-category" data-aos="fade-up" data-aos-delay="300">
-              <h3>Web Development</h3>
-              <div class="skills-animation">
-                {% for skill in data.about_skills %}
-                {% if (skill.get('category', 'Cloud & DevOps') == 'Web Development') %}
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>{{ skill['Skill'] if 'Skill' in skill else 'Skill Name' }}</h4>
-                    <span class="skill-percentage">{{ skill['percentage'] if 'percentage' in skill else 0 }}%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar"
-                      aria-valuenow="{{ skill['percentage'] if 'percentage' in skill else 0 }}" aria-valuemin="0"
-                      aria-valuemax="100" style="width: {{ skill['percentage'] if 'percentage' in skill else 0 }}%">
-                    </div>
-                  </div>
-                  {% if skill.get('Description') %}
-                  <div class="skill-tooltip">{{ skill['Description'] }}</div>
-                  {% endif %}
-                </div>
-                {% endif %}
-                {% endfor %}
-              </div>
-            </div>
-          </div>
+          {% endif %}
+          {% endfor %}
         </div>
         {% else %}
         <!-- Fallback hardcoded skills -->
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col-lg-6 mb-4">
             <div class="skills-category" data-aos="fade-up" data-aos-delay="200">
               <h3>Cloud & DevOps</h3>
-              <div class="skills-animation">
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>AWS </h4>
-                    <span class="skill-percentage">90%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Designing and deploying scalable AWS cloud infrastructures.</div>
-                </div>
+              <div class="d-flex flex-wrap gap-2 mt-3 mb-4">
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Designing and deploying scalable AWS cloud infrastructures." data-bs-toggle="tooltip">AWS</span>
+                
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Implementing optimized cloud storage and databases efficiently." data-bs-toggle="tooltip">Oracle Cloud</span>
+                
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Streamlining deployments and automating software delivery pipelines." data-bs-toggle="tooltip">CI/CD & Automation</span>
 
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>Oracle Cloud</h4>
-                    <span class="skill-percentage">75%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Implementing optimized cloud storage and databases efficiently.</div>
-                </div>
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Enforcing secure and cost-effective cloud environment practices." data-bs-toggle="tooltip">Cloud Security & Cost Optimization</span>
 
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>CI/CD & Automation</h4>
-                    <span class="skill-percentage">80%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Streamlining deployments and automating software delivery pipelines.</div>
-                </div>
-
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>Cloud Security & Cost Optimization </h4>
-                    <span class="skill-percentage">85%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="85" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Enforcing secure and cost-effective cloud environment practices.</div>
-                </div>
-
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>Infrastructure as Code</h4>
-                    <span class="skill-percentage">80%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Building reusable and automated infrastructure deployment templates.</div>
-                </div>
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Building reusable and automated infrastructure deployment templates." data-bs-toggle="tooltip">Infrastructure as Code</span>
               </div>
             </div><!-- End Frontend Skills -->
           </div>
 
-          <div class="col-lg-6">
+          <div class="col-lg-6 mb-4">
             <div class="skills-category" data-aos="fade-up" data-aos-delay="300">
               <h3>Web Development</h3>
-              <div class="skills-animation">
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>Python, Java, C++, JavaScript, SQL </h4>
-                    <span class="skill-percentage">85%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="85" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Writing clean, efficient, modular code consistently.</div>
-                </div>
-
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>Flask, HTML, CSS, Bootstrap, React</h4>
-                    <span class="skill-percentage">80%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Creating responsive, full-stack web solutions professionally.</div>
-                </div>
-
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>MySQL, RDS, Oracle DB</h4>
-                    <span class="skill-percentage">85%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="85" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Designing reliable and optimized database architectures.</div>
-                </div>
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>GitHub, VSCode, PyCharm, Eclipse, Trello</h4>
-                    <span class="skill-percentage">90%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="90" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Managing projects using modern collaborative tools.</div>
-                </div>
-
-                <div class="skill-item">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <h4>API Integration & Web Hosting</h4>
-                    <span class="skill-percentage">80%</span>
-                  </div>
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0"
-                      aria-valuemax="100"></div>
-                  </div>
-                  <div class="skill-tooltip">Deploying web applications with custom domains.</div>
-                </div>
+              <div class="d-flex flex-wrap gap-2 mt-3 mb-4">
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Writing clean, efficient, modular code consistently." data-bs-toggle="tooltip">Python, Java, C++, JavaScript, SQL</span>
+                
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Creating responsive, full-stack web solutions professionally." data-bs-toggle="tooltip">Flask, HTML, CSS, Bootstrap, React</span>
+                
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Designing reliable and optimized database architectures." data-bs-toggle="tooltip">MySQL, RDS, Oracle DB</span>
+                
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Managing projects using modern collaborative tools." data-bs-toggle="tooltip">GitHub, VSCode, PyCharm, Eclipse, Trello</span>
+                
+                <span class="skill-badge fs-6 py-2 px-3 rounded-pill border border-secondary text-light" style="background: rgba(255,255,255,0.05); transition: 0.3s;" onmouseover="this.style.borderColor='#00ffff'; this.style.boxShadow='0 0 10px rgba(0,255,255,0.3)';" onmouseout="this.style.borderColor='var(--bs-secondary)'; this.style.boxShadow='none';" title="Deploying web applications with custom domains." data-bs-toggle="tooltip">API Integration & Web Hosting</span>
               </div>
             </div><!-- End Backend Skills -->
           </div>
@@ -1069,6 +947,14 @@
         chatBody.scrollTop = chatBody.scrollHeight;
         return id;
       }
+    });
+
+    // Initialize Bootstrap Tooltips for Skill Badges
+    document.addEventListener('DOMContentLoaded', function() {
+      var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
     });
   </script>
 
