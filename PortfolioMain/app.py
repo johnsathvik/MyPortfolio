@@ -427,7 +427,7 @@ def download_resume():
     if not os.path.exists(resume_path):
         resume_path = os.path.join(app.root_path, 'static', 'resume', 'Resume.pdf')
     
-    return send_file(resume_path, as_attachment=True)
+    return send_file(resume_path, as_attachment=False)
 
 # --- Social Links ---
 @app.route('/github')
