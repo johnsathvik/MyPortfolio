@@ -26,8 +26,12 @@ from config.secrets import load_secrets
 load_secrets()
 
 
+from datetime import timedelta
+
 app = Flask(__name__)
 app.secret_key = '*John3211#*John3211#*John3211#*John3211#*John3211#'
+
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # Dev config for instant reload 
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -205,6 +209,7 @@ def admin_login():
             stored_password = links.get('admin_password')
 
             if username == stored_username and password == stored_password:
+                session.permanent = True
                 session['admin_logged_in'] = True
                 session['is_guest'] = False  # Explicitly clear guest mode flag
                 # Store credentials in session for strict validation
