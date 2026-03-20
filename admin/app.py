@@ -653,8 +653,22 @@ def admin_resume():
     if request.method == "POST":
         # GUEST GUARD
         if session.get('is_guest'):
+            if request.is_json:
+                return {'status': 'guest_mode', 'message': "Guest Mode: Changes simulated."}, 200
             flash("Guest Mode: Read-only access. Changes are not saved.", "warning")
             return redirect(request.url)
+
+        if request.is_json:
+            data = request.get_json()
+            if 'reorder_tech_skills' in data:
+                new_skills = data['reorder_tech_skills']
+                if isinstance(new_skills, list):
+                    raw = fb.get('/resume/technical_skills', None) or {}
+                    if raw:
+                        key = next(iter(raw))
+                        fb.put(f'/resume/technical_skills/{key}', 'skills', new_skills)
+                        return {'status': 'success'}, 200
+                    return {'status': 'error', 'message': 'No technical skills found'}, 400
 
         # ---------------- EXPERIENCE HANDLING ----------------
         # Handle Professional Summary update
