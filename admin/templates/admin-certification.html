@@ -564,7 +564,7 @@
                         </button>
                       </form>
 
-                      <form method="POST" action="/delete-certification" style="display:inline;">
+                      <form method="POST" action="{{ url_for('delete_certification') }}" style="display:inline;">
                         <input type="hidden" name="key" value="{{ key }}">
                         <button class="btn btn-sm btn-danger" type="submit">
                           <i class="bi bi-trash"></i> Delete

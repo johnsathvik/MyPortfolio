@@ -180,7 +180,7 @@ def add_header(response):
 def admin_profile_image(filename):
     """Serve profile images from main project static folder"""
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    static_dir = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'profile')
+    static_dir = os.path.join(base_dir, 'PortfolioMain', 'static', 'assets', 'img', 'profile')
     return send_from_directory(static_dir, filename)
 
 @app.route('/admin-guest-login')
@@ -318,7 +318,7 @@ def admin_intro():
 
     # Get profile image path
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    profile_image_path = os.path.join(base_dir, 'main', 'project', 'static', 'assets', 'img', 'profile', 'main.jpg')
+    profile_image_path = os.path.join(base_dir, 'PortfolioMain', 'static', 'assets', 'img', 'profile', 'main.jpg')
     profile_image_url = url_for('admin_profile_image', filename='main.jpg') if os.path.exists(profile_image_path) else None
 
     return render_template('admin-home.html', skills=skills, bio=bio, profile_image_url=profile_image_url)
@@ -350,7 +350,7 @@ def admin_about():
             # Define the path to save the resume
             # Path to main project's static/resume folder
             base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            resume_dir = os.path.join(base_dir, 'main', 'project', 'static', 'resume')
+            resume_dir = os.path.join(base_dir, 'PortfolioMain', 'static', 'resume')
             
             # Create directory if it doesn't exist
             os.makedirs(resume_dir, exist_ok=True)
@@ -831,7 +831,8 @@ def admin_resume():
                          technical_skills=technical_skills)
 
 
-@app.route('/delete-experience', methods=['POST'])
+@app.route('/admin-delete-experience', methods=['POST'])
+@login_required
 @nocache
 def delete_experience():
     # GUEST GUARD
@@ -845,7 +846,7 @@ def delete_experience():
         flash('Experience deleted successfully!', 'success')
     return redirect(url_for('admin_resume'))
 
-@app.route('/delete-education', methods=["POST"])
+@app.route('/admin-delete-education', methods=["POST"])
 @login_required
 @nocache
 def delete_education():
@@ -960,7 +961,7 @@ def admin_certification():
     )
 
 
-@app.route('/delete-certification', methods=["POST"])
+@app.route('/admin-delete-certification', methods=["POST"])
 @login_required
 @nocache
 def delete_certification():
@@ -1037,7 +1038,7 @@ def admin_project():
     )
 
 
-@app.route('/delete-project', methods=["POST"])
+@app.route('/admin-delete-project', methods=["POST"])
 @login_required
 @nocache
 def delete_project():

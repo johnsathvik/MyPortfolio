@@ -735,7 +735,7 @@
                         <i class="bi bi-pencil"></i> Edit
                       </button>
 
-                      <form method="POST" action="/delete-experience" style="display:inline;">
+                      <form method="POST" action="{{ url_for('delete_experience') }}" style="display:inline;">
                         <input type="hidden" name="key" value="{{ key }}">
                         <button class="btn btn-sm btn-danger" type="submit">
                           <i class="bi bi-trash"></i> Delete
@@ -754,7 +754,7 @@
             </div>
             {% endif %}
           </div>
-       
+        </div>
 
         <hr class="section-divider">
 
@@ -789,7 +789,7 @@
                     <td>{{ edu.location if edu.location else '-' }}</td>
                     <td>{{ edu.description }}</td>
                     <td class="actions-cell">
-                      <form method="POST" action="/delete-education" style="display:inline;">
+                      <form method="POST" action="{{ url_for('delete_education') }}" style="display:inline;">
                         <input type="hidden" name="key" value="{{ key }}">
                         <button class="btn btn-sm btn-danger me-1" type="submit">
                           <i class="bi bi-trash"></i> Delete
@@ -1034,6 +1034,7 @@
             indexField.value = event.relatedTarget.dataset.index || '';
           }
         });
+      }
    
       // Experience Modal Prefill
       const editExperienceModal = document.getElementById('editExperienceModal');
